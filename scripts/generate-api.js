@@ -92,13 +92,13 @@ async function generateApi() {
         // Copy generated API directory to the npm package
         const sourceDir = path.join(process.cwd(), "src/generated")
         const targetDir = path.join(process.cwd(), "packages/api-client/generated")
-        
+
         if (fs.existsSync(sourceDir)) {
             // Remove existing target directory if it exists
             if (fs.existsSync(targetDir)) {
                 fs.rmSync(targetDir, { recursive: true, force: true })
             }
-            
+
             // Copy entire directory
             fs.cpSync(sourceDir, targetDir, { recursive: true })
             console.log("📦 Copied to packages/api-client/generated/")

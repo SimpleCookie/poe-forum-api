@@ -1,4 +1,9 @@
-// Auto-generated API client - re-exports from generated modules
+// Configuration
+export { setBaseUrl, getBaseUrl, resetBaseUrl } from './config'
+
+// API Client with dynamic base URL support
+export { getCategories, getCategory, getThread } from './client'
+
+// Types
 export * from './generated/api.schemas'
-export * from './generated/categories/categories'
-export * from './generated/threads/threads'
+export type { getCategoriesResponse, getCategoryResponse, getThreadResponse } from './client'
