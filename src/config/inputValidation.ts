@@ -1,8 +1,8 @@
 export class ValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ValidationError";
-  }
+    constructor(message: string) {
+        super(message)
+        this.name = "ValidationError"
+    }
 }
 
 /**
@@ -13,11 +13,11 @@ export class ValidationError extends Error {
  * @throws {ValidationError} If thread ID is invalid
  */
 export function validateThreadId(threadId: string): void {
-  if (!threadId || !/^\d+$/.test(threadId)) {
-    throw new ValidationError(
-      `Invalid thread ID: must be numeric, got "${threadId}"`
-    );
-  }
+    if (!threadId || !/^\d+$/.test(threadId)) {
+        throw new ValidationError(
+            `Invalid thread ID: must be numeric, got "${threadId}"`
+        )
+    }
 }
 
 /**
@@ -28,11 +28,11 @@ export function validateThreadId(threadId: string): void {
  * @throws {ValidationError} If slug is invalid
  */
 export function validateCategorySlug(categorySlug: string): void {
-  if (!categorySlug || !/^[a-zA-Z0-9_-]+$/.test(categorySlug)) {
-    throw new ValidationError(
-      `Invalid category slug: must contain only alphanumeric characters, hyphens, and underscores, got "${categorySlug}"`
-    );
-  }
+    if (!categorySlug || !/^[a-zA-Z0-9_-]+$/.test(categorySlug)) {
+        throw new ValidationError(
+            `Invalid category slug: must contain only alphanumeric characters, hyphens, and underscores, got "${categorySlug}"`
+        )
+    }
 }
 
 /**
@@ -43,9 +43,9 @@ export function validateCategorySlug(categorySlug: string): void {
  * @throws {ValidationError} If page number is invalid
  */
 export function validatePageNumber(pageNumber: number, maxPage = 200): void {
-  if (!Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > maxPage) {
-    throw new ValidationError(
-      `Invalid page number: must be between 1 and ${maxPage}, got ${pageNumber}`
-    );
-  }
+    if (!Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > maxPage) {
+        throw new ValidationError(
+            `Invalid page number: must be between 1 and ${maxPage}, got ${pageNumber}`
+        )
+    }
 }
