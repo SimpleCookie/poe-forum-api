@@ -11,7 +11,8 @@
     "test:watch": "jest --watch",
     "generate:api": "node scripts/generate-api.js",
     "build:client": "cd packages/api-client && npm run build",
-    "publish:client": "cd packages/api-client && npm publish"
+    "publish:client": "cd packages/api-client && npm publish",
+    "publish:client:auto": "node scripts/publish-client.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
