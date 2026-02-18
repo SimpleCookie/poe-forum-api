@@ -10,7 +10,7 @@ import categoriesRoutes from "./routes/categoriesRoutes"
 import healthRoutes from "./routes/healthRoutes"
 import { env } from "../config/env"
 
-export async function buildApp(): Promise<FastifyInstance> {
+export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
       level: env.LOG_LEVEL,
@@ -54,11 +54,13 @@ export async function buildApp(): Promise<FastifyInstance> {
     routePrefix: "/documentation",
   })
 
-  // Rate limiting
-  await app.register(rateLimit, {
-    max: env.RATE_LIMIT_MAX,
-    timeWindow: env.RATE_LIMIT_WINDOW,
-  })
+  // Rate limiting (disable for tests)
+  if (!opts?.disableRateLimit) {
+    await app.register(rateLimit, {
+      max: env.RATE_LIMIT_MAX,
+      timeWindow: env.RATE_LIMIT_WINDOW,
+    })
+  }
 
   // Routes
   app.register(categoriesRoutes, { prefix: "/api" })
