@@ -1,9 +1,8 @@
-import type { Page } from "puppeteer";
+import { load as cheerioLoad } from "cheerio"
 
-export async function getNextPageUrl(page: Page): Promise<string | null> {
-  return page.evaluate(() => {
-    const links = Array.from(document.querySelectorAll("div.pagination a"));
-    const next = links.find(a => a.textContent?.trim() === "Next");
-    return next ? (next as HTMLAnchorElement).href : null;
-  });
+export function getNextPageUrl(html: string): string | null {
+  const $ = cheerioLoad(html)
+  const links = $("div.pagination a").toArray()
+  const next = links.find((link) => $(link).text().trim() === "Next")
+  return next ? $(next).attr("href") || null : null
 }

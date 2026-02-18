@@ -1,5 +1,5 @@
-import puppeteer from "puppeteer"
-import type { Page } from "puppeteer"
+import { load as cheerioLoad } from "cheerio"
+import { fetchHtml } from "./fetchHtml"
 import { BASE_URL } from "../config/constants"
 
 export interface CategoryThread {
@@ -8,62 +8,51 @@ export interface CategoryThread {
     replies: number
 }
 
-async function extractThreadsFromCategory(page: Page): Promise<CategoryThread[]> {
-    return page.evaluate(() => {
-        const rows = Array.from(document.querySelectorAll("tbody tr"))
+function extractThreadsFromCategory(html: string): CategoryThread[] {
+    const $ = cheerioLoad(html)
+    const rows = $("tbody tr").toArray()
 
-        return rows
-            .map((row) => {
-                const titleLink = row.querySelector(
-                    ".thread .thread_title .title a"
-                ) as HTMLAnchorElement | null
+    return rows
+        .map((row) => {
+            const $row = $(row)
+            const titleLink = $row.find(".thread .thread_title .title a")
+            const repliesEl = $row.find("td.views span")
 
-                const repliesEl = row.querySelector("td.views span")
+            if (!titleLink.length) return null
 
-                if (!titleLink) return null
+            const href = titleLink.attr("href") || ""
+            const match = href.match(/view-thread\/(\d+)/)
 
-                const href = titleLink.getAttribute("href") || ""
-                const match = href.match(/view-thread\/(\d+)/)
-
-                return {
-                    threadId: match ? match[1] : "",
-                    title: titleLink.textContent?.trim() || "",
-                    replies: repliesEl
-                        ? Number(repliesEl.textContent?.trim() || "0")
-                        : 0,
-                }
-            })
-            .filter(
-                (thread): thread is CategoryThread => thread !== null
-            )
-    })
+            return {
+                threadId: match ? match[1] : "",
+                title: titleLink.text().trim() || "",
+                replies: repliesEl.length
+                    ? Number(repliesEl.text().trim() || "0")
+                    : 0,
+            }
+        })
+        .filter(
+            (thread): thread is CategoryThread => thread !== null
+        )
 }
 
 export async function crawlCategoryPage(
     categorySlug: string,
     pageNumber: number
 ) {
-    const browser = await puppeteer.launch({ headless: true })
-    const page = await browser.newPage()
+    const url =
+        pageNumber === 1
+            ? `${BASE_URL}/forum/view-forum/${categorySlug}`
+            : `${BASE_URL}/forum/view-forum/${categorySlug}/page/${pageNumber}`
 
-    try {
-        const url =
-            pageNumber === 1
-                ? `${BASE_URL}/forum/view-forum/${categorySlug}`
-                : `${BASE_URL}/forum/view-forum/${categorySlug}/page/${pageNumber}`
+    console.log("Fetching category URL:", url)
 
-        console.log("Fetching category URL:", url)
+    const html = await fetchHtml(url)
+    const threads = extractThreadsFromCategory(html)
 
-        await page.goto(url, { waitUntil: "domcontentloaded" })
-
-        const threads = await extractThreadsFromCategory(page)
-
-        return {
-            category: categorySlug,
-            page: pageNumber,
-            threads,
-        }
-    } finally {
-        await browser.close()
+    return {
+        category: categorySlug,
+        page: pageNumber,
+        threads,
     }
 }

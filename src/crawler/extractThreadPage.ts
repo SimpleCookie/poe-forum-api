@@ -1,42 +1,32 @@
 import dayjs from "dayjs"
-import type { Page } from "puppeteer"
+import { load as cheerioLoad } from "cheerio"
 import { cleanContent } from "./clean"
 import { getNextPageUrl } from "./pagination"
 
-export async function extractThreadPage(
-  page: Page,
+export function extractThreadPage(
+  html: string,
   opts: { threadId: string; pageNumber: number; isFirstPage: boolean }
 ) {
-  const rawPosts = await page.evaluate((isFirstPage) => {
-    const rows = Array.from(document.querySelectorAll("table.forumTable tr"))
+  const $ = cheerioLoad(html)
+  const rows = $("table.forumTable tr").toArray()
+  const filtered = opts.isFirstPage ? rows.slice(1) : rows
 
-    const filtered = isFirstPage ? rows.slice(1) : rows
+  const rawPosts = filtered.map((row, indexOnPage) => {
+    const $row = $(row)
+    const contentEl = $row.find("td.content-container .content")
+    const authorEl = $row.find(".posted-by .profile-link a")
+    const dateEl = $row.find(".posted-by .post_date")
+    const anchorEl = $row.find(".post_anchor")
 
-    return filtered.map((row, indexOnPage) => {
-      const contentEl = row.querySelector("td.content-container .content")
-
-      const authorEl = row.querySelector(
-        ".posted-by .profile-link a"
-      ) as HTMLAnchorElement | null
-
-      const dateEl = row.querySelector(
-        ".posted-by .post_date"
-      )
-
-      const anchorEl = row.querySelector(
-        ".post_anchor"
-      ) as HTMLElement | null
-
-      return {
-        indexOnPage,
-        contentText: contentEl?.textContent || "",
-        contentHtml: contentEl?.innerHTML || "",
-        author: authorEl?.textContent?.trim() || null,
-        createdAtRaw: dateEl?.textContent?.trim() || null,
-        postId: anchorEl?.id || null,
-      }
-    })
-  }, opts.isFirstPage)
+    return {
+      indexOnPage,
+      contentText: contentEl.text() || "",
+      contentHtml: contentEl.html() || "",
+      author: authorEl.text().trim() || null,
+      createdAtRaw: dateEl.text().trim() || null,
+      postId: anchorEl.attr("id") || null,
+    }
+  })
 
   const posts = rawPosts
     .filter((p) => p.contentText.length > 0)
@@ -53,7 +43,7 @@ export async function extractThreadPage(
       postId: p.postId ?? null,
     }))
 
-  const nextPageUrl = await getNextPageUrl(page)
+  const nextPageUrl = getNextPageUrl(html)
 
   return {
     posts,

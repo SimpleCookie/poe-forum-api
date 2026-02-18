@@ -67,8 +67,8 @@ Once deployed, test your API:
 
 ```bash
 # Replace YOUR_SERVICE_NAME with your actual service name
-curl https://your-service-name.onrender.com/health
-curl https://your-service-name.onrender.com/api/categories
+curl https://poe-forum-api.onrender.com/health
+curl https://poe-forum-api.onrender.com/api/categories
 ```
 
 ## Logs

@@ -1,5 +1,10 @@
-import type { Page } from "puppeteer";
+import axios from "axios"
 
-export async function fetchHtml(page: Page, url: string): Promise<void> {
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+export async function fetchHtml(url: string): Promise<string> {
+  const { data } = await axios.get(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    },
+  })
+  return data
 }

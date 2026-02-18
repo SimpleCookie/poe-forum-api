@@ -1,35 +1,34 @@
-import type { Page } from "puppeteer";
-import { fetchHtml } from "./fetchHtml";
-import { extractThreadPage } from "./extractThreadPage";
-import type { Post } from "../domain/thread";
+import { fetchHtml } from "./fetchHtml"
+import { extractThreadPage } from "./extractThreadPage"
+import { getNextPageUrl } from "./pagination"
+import type { Post } from "../domain/thread"
 
 export async function crawlThread(
-  page: Page,
   opts: { startUrl: string; threadId: string; maxPages?: number }
 ): Promise<Post[]> {
-  let url: string | null = opts.startUrl;
-  let pageNumber = 1;
-  let isFirstPage = true;
+  let url: string | null = opts.startUrl
+  let pageNumber = 1
+  let isFirstPage = true
 
-  const allPosts: Post[] = [];
+  const allPosts: Post[] = []
 
   while (url) {
-    if (opts.maxPages && pageNumber > opts.maxPages) break;
+    if (opts.maxPages && pageNumber > opts.maxPages) break
 
-    await fetchHtml(page, url);
+    const html = await fetchHtml(url)
 
-    const threadPage = await extractThreadPage(page, {
+    const threadPage = extractThreadPage(html, {
       threadId: opts.threadId,
       pageNumber,
       isFirstPage,
-    });
+    })
 
-    allPosts.push(...threadPage.posts);
+    allPosts.push(...threadPage.posts)
 
-    url = threadPage.nextPageUrl;
-    pageNumber += 1;
-    isFirstPage = false;
+    url = getNextPageUrl(html)
+    pageNumber += 1
+    isFirstPage = false
   }
 
-  return allPosts;
+  return allPosts
 }
