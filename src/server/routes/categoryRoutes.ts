@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify"
 import { CategoryService } from "../../service/categoryService"
 import { assertAllowedCategory } from "../../config/categories"
 import { validateCategorySlug, validatePageNumber, ValidationError } from "../../config/inputValidation"
+import { getCategorySchema } from "../schemas/categorySchemas"
 
 const categoryService = new CategoryService()
 
@@ -9,7 +10,7 @@ export default async function categoryRoutes(app: FastifyInstance) {
     app.get<{
         Params: { category: string }
         Querystring: { page?: string }
-    }>("/category/:category", async (request, reply) => {
+    }>("/category/:category", { schema: getCategorySchema }, async (request, reply) => {
         try {
             const { category } = request.params
             const page = Number(request.query.page ?? "1")

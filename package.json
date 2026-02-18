@@ -5,9 +5,12 @@
   "license": "MIT",
   "scripts": {
     "start": "tsx src/index.ts",
-    "server": "tsx src/server/index.ts"
+    "server": "tsx src/server/index.ts",
+    "generate:api": "node scripts/generate-api.js"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
     "@fastify/rate-limit": "^10.3.0",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
@@ -18,7 +21,10 @@
     "puppeteer": "^23.11.0"
   },
   "devDependencies": {
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.5",
     "@types/puppeteer": "^7.0.4",
+    "orval": "^8.4.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }

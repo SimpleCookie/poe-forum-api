@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify"
 import { forumCategories } from "../../config/categories"
 import { FORUM_BASE_URL } from "../../config/constants"
+import { getCategoriesSchema } from "../schemas/categoriesSchemas"
 
 export default async function categoriesRoutes(app: FastifyInstance) {
-
-    app.get("/categories", async () => {
+    app.get("/categories", { schema: getCategoriesSchema }, async () => {
         const grouped = {
             poe1: [] as any[],
             poe2: [] as any[],
