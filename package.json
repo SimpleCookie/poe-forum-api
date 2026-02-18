@@ -9,7 +9,9 @@
     "start": "node dist/server/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "generate:api": "node scripts/generate-api.js"
+    "generate:api": "node scripts/generate-api.js",
+    "build:client": "cd packages/api-client && npm run build",
+    "publish:client": "cd packages/api-client && npm publish"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

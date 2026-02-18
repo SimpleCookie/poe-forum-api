@@ -87,7 +87,22 @@ async function generateApi() {
         execSync("npx orval", { stdio: "inherit" })
 
         console.log("✅ API client generated successfully!")
-        console.log("📂 Generated file: src/generated/api.ts")
+        console.log("📂 Generated file: src/generated/")
+
+        // Copy generated API directory to the npm package
+        const sourceDir = path.join(process.cwd(), "src/generated")
+        const targetDir = path.join(process.cwd(), "packages/api-client/generated")
+        
+        if (fs.existsSync(sourceDir)) {
+            // Remove existing target directory if it exists
+            if (fs.existsSync(targetDir)) {
+                fs.rmSync(targetDir, { recursive: true, force: true })
+            }
+            
+            // Copy entire directory
+            fs.cpSync(sourceDir, targetDir, { recursive: true })
+            console.log("📦 Copied to packages/api-client/generated/")
+        }
     } catch (error) {
         console.error("❌ Error:", error.message)
         console.error("\n💡 Make sure the server is running: npm run server")
