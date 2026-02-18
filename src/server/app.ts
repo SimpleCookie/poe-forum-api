@@ -1,4 +1,4 @@
-import Fastify from "fastify"
+import Fastify, { FastifyInstance } from "fastify"
 import helmet from "@fastify/helmet"
 import cors from "@fastify/cors"
 import rateLimit from "@fastify/rate-limit"
@@ -7,18 +7,31 @@ import swaggerUi from "@fastify/swagger-ui"
 import { threadRoutes } from "./routes/threadRoutes"
 import categoryRoutes from "./routes/categoryRoutes"
 import categoriesRoutes from "./routes/categoriesRoutes"
+import healthRoutes from "./routes/healthRoutes"
+import { env } from "../config/env"
 
-export async function buildApp() {
+export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
-    logger: true,
+    logger: {
+      level: env.LOG_LEVEL,
+      transport: env.IS_PRODUCTION
+        ? undefined
+        : {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+          },
+        },
+    },
   })
 
   // Security headers
   await app.register(helmet)
 
-  // CORS - configure for your frontend domain
+  // CORS - configured via environment
+  const corsOrigin = env.IS_DEVELOPMENT ? true : env.CORS_ORIGIN
   await app.register(cors, {
-    origin: true, // Allow all origins for localhost/development. Change to specific domain in production
+    origin: corsOrigin,
     credentials: true,
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
   })
@@ -27,12 +40,12 @@ export async function buildApp() {
   await app.register(swagger, {
     openapi: {
       info: {
-        title: "PoE Forum Mobile API",
-        description: "API for browsing Path of Exile forum on mobile",
-        version: "1.0.0",
+        title: env.API_TITLE,
+        description: env.API_DESCRIPTION,
+        version: env.API_VERSION,
       },
       servers: [
-        { url: "http://localhost:3000", description: "Development" },
+        { url: env.API_URL, description: env.NODE_ENV },
       ],
     },
   })
@@ -43,14 +56,15 @@ export async function buildApp() {
 
   // Rate limiting
   await app.register(rateLimit, {
-    max: 50,
-    timeWindow: "1 minute",
+    max: env.RATE_LIMIT_MAX,
+    timeWindow: env.RATE_LIMIT_WINDOW,
   })
 
   // Routes
   app.register(categoriesRoutes, { prefix: "/api" })
   app.register(categoryRoutes, { prefix: "/api" })
   app.register(threadRoutes, { prefix: "/api" })
+  app.register(healthRoutes)
 
   return app
 }

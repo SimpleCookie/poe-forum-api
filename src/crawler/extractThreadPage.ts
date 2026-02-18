@@ -1,6 +1,7 @@
 import dayjs from "dayjs"
 import type { Page } from "puppeteer"
 import { cleanContent } from "./clean"
+import { getNextPageUrl } from "./pagination"
 
 export async function extractThreadPage(
   page: Page,
@@ -37,7 +38,7 @@ export async function extractThreadPage(
     })
   }, opts.isFirstPage)
 
-  return rawPosts
+  const posts = rawPosts
     .filter((p) => p.contentText.length > 0)
     .map((p) => ({
       threadId: opts.threadId,
@@ -51,4 +52,11 @@ export async function extractThreadPage(
         : null,
       postId: p.postId ?? null,
     }))
+
+  const nextPageUrl = await getNextPageUrl(page)
+
+  return {
+    posts,
+    nextPageUrl,
+  }
 }

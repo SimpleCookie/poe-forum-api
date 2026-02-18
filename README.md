@@ -29,8 +29,20 @@ npm install
 
 ## Running the Server
 
+### Development
+
 ```bash
-npm run server
+npm run dev
+```
+
+### Production Build & Run
+
+```bash
+# Build TypeScript to JavaScript
+npm run build
+
+# Start the compiled server
+npm start
 ```
 
 The API will be available at `http://localhost:3000`
@@ -220,28 +232,136 @@ orval.config.ts        # Client generation config
 - **tsx**: TypeScript execution
 - **typescript**: Language
 
-## Deployment Notes
+## Deployment & Production
 
-### Environment Variables
+### Environment Configuration
 
+1. **Copy `.env.example` to `.env`**:
+```bash
+cp .env.example .env
+```
+
+2. **Update environment variables for production**:
 ```env
-# Optional configuration
+# Server Configuration
+NODE_ENV=production
 PORT=3000
 HOST=0.0.0.0
-NODE_ENV=production
+
+# CORS Configuration (CRITICAL: change to your domain)
 CORS_ORIGIN=https://yourdomain.com
+
+# Logging
+LOG_LEVEL=info
+
+# Rate Limiting (requests per minute)
+RATE_LIMIT_MAX=100
+RATE_LIMIT_WINDOW=1 minute
+
+# API Documentation
 API_URL=https://api.yourdomain.com
+API_TITLE=PoE Forum Mobile API
+API_VERSION=1.0.0
+```
+
+### Docker Deployment
+
+**Build and run with Docker**:
+```bash
+docker build -t poe-forum-api .
+docker run -p 3000:3000 \
+  -e NODE_ENV=production \
+  -e CORS_ORIGIN=https://yourdomain.com \
+  poe-forum-api
+```
+
+**Using Docker Compose** (recommended):
+```bash
+# Create .env file with production values
+cp .env.example .env
+# Edit .env with your production settings
+
+# Start the service
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop the service
+docker-compose down
+```
+
+### Health Checks
+
+The API provides health check endpoints:
+
+- **Liveness Check**: `GET /health` - Returns status and uptime
+- **Readiness Check**: `GET /ready` - Returns readiness for traffic
+
+Example:
+```bash
+curl http://localhost:3000/health
+# {"status":"ok","timestamp":"2026-02-18T10:30:00Z","uptime":1234.5}
 ```
 
 ### Production Checklist
 
-- [ ] Update CORS origin in `src/server/app.ts`
-- [ ] Enable HTTPS with proper SSL certificates
-- [ ] Configure rate limiting limits based on expected load
-- [ ] Monitor server logs for errors
-- [ ] Set up error tracking (Sentry, etc)
-- [ ] Regular health checks on `/api/categories`
-- [ ] Replace Puppeteer with Cheerio
+- [ ] **Environment Variables**: Copy and configure `.env` file
+- [ ] **CORS Origin**: Update `CORS_ORIGIN` to your frontend domain
+- [ ] **Logging**: Set `LOG_LEVEL=info` or `warn` for production
+- [ ] **Rate Limiting**: Adjust `RATE_LIMIT_MAX` based on expected load
+- [ ] **HTTPS/SSL**: Configure reverse proxy (Nginx, CloudFlare, etc)
+- [ ] **Build & Test**: Run `npm run build` before deployment
+- [ ] **Docker Image**: Build and test Docker image locally
+- [ ] **Health Monitoring**: Set up health checks pointing to `/health`
+- [ ] **Error Tracking**: Integrate Sentry or similar error tracking
+- [ ] **Logging**: Use container orchestration logs (CloudWatch, ECS, etc)
+- [ ] **Resource Limits**: Set CPU/memory limits in docker-compose.yml
+- [ ] **Graceful Shutdown**: Ensure proper signal handling (handled by dumb-init)
+
+### Deployment Platforms
+
+#### Heroku
+```bash
+heroku create your-app-name
+git push heroku main
+heroku config:set CORS_ORIGIN=https://your-frontend.herokuapp.com
+heroku logs --tail
+```
+
+#### AWS ECS / Fargate
+1. Build and push Docker image to ECR
+2. Create ECS task definition using the image
+3. Set environment variables in task definition
+4. Configure load balancer with health checks pointing to `/health`
+
+#### Railway / Fly.io
+1. Create `Dockerfile` (included)
+2. Deploy: `railway up` or `flyctl deploy`
+3. Set environment variables via platform CLI
+
+#### Azure / DigitalOcean App Platform
+1. Build Docker image
+2. Deploy to container service
+3. Configure environment variables and domains
+
+### Production Monitoring
+
+**Log Levels**:
+- `trace`: Detailed debugging (not recommended for production)
+- `debug`: Development-level debugging
+- `info`: General information (recommended)
+- `warn`: Warnings only
+- `error`: Errors only
+- `fatal`: Critical errors only
+
+**Monitor these metrics**:
+- Response time (`/api/*/` endpoints)
+- Error rate (4xx, 5xx responses)
+- Rate limit hits (429 responses)
+- Health check status
+- CPU and memory usage
+- Disk space on container host
 
 ## Performance Optimization
 
