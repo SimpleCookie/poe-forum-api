@@ -1,0 +1,25 @@
+{
+  "name": "forum-crawler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "server": "tsx src/server/index.ts"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^10.3.0",
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "dayjs": "^1.11.19",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.7.4",
+    "openai": "^4.77.0",
+    "puppeteer": "^23.11.0"
+  },
+  "devDependencies": {
+    "@types/puppeteer": "^7.0.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
