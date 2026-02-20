@@ -2,36 +2,35 @@ import { extractThreadPage } from '../extractThreadPage'
 import { mockThreadPageHtml } from './fixtures'
 
 describe('extractThreadPage', () => {
-    it('should extract posts from thread page', () => {
-        const result = extractThreadPage(mockThreadPageHtml, {
-            threadId: '123',
-            pageNumber: 1,
-            isFirstPage: true,
-        })
-
-        expect(result.posts).toHaveLength(2)
-        expect(result.posts[0]).toMatchObject({
-            threadId: '123',
-            page: 1,
-            indexOnPage: 0,
-            author: 'GGG_Staff',
-            postId: '12345',
-        })
+  it('should extract posts from thread page', () => {
+    const result = extractThreadPage(mockThreadPageHtml, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: true,
     })
 
-    it('should skip first row only on first page', () => {
-        const result = extractThreadPage(mockThreadPageHtml, {
-            threadId: '123',
-            pageNumber: 1,
-            isFirstPage: true,
-        })
+    expect(result.posts).toHaveLength(2)
+    expect(result.posts[0]).toMatchObject({
+      threadId: '123',
+      indexOnPage: 0,
+      author: 'GGG_Staff',
+      postId: '12345',
+    })
+  })
 
-        // Should have 2 posts (header row removed)
-        expect(result.posts).toHaveLength(2)
+  it('should skip first row only on first page', () => {
+    const result = extractThreadPage(mockThreadPageHtml, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: true,
     })
 
-    it('should include all rows on subsequent pages', () => {
-        const html = `
+    // Should have 2 posts (header row removed)
+    expect(result.posts).toHaveLength(2)
+  })
+
+  it('should include all rows on subsequent pages', () => {
+    const html = `
       <table class="forumTable">
         <tr>
           <td class="content-container"><div class="content">Post 1</div></td>
@@ -50,43 +49,109 @@ describe('extractThreadPage', () => {
           <td><div class="post_anchor" id="2"></div></td>
         </tr>
       </table>
+      <div class="pagination">
+        <a class="current" href="/forum/view-thread/123/page/2">2</a>
+        <a href="/forum/view-thread/123/page/3">3</a>
+        <a href="/forum/view-thread/123/page/3">Next</a>
+      </div>
     `
 
-        const result = extractThreadPage(html, {
-            threadId: '123',
-            pageNumber: 2,
-            isFirstPage: false,
-        })
-
-        expect(result.posts).toHaveLength(2)
+    const result = extractThreadPage(html, {
+      threadId: '123',
+      pageNumber: 2,
+      isFirstPage: false,
     })
 
-    it('should extract next page URL', () => {
-        const result = extractThreadPage(mockThreadPageHtml, {
-            threadId: '123',
-            pageNumber: 1,
-            isFirstPage: true,
-        })
+    expect(result.posts).toHaveLength(2)
+  })
 
-        expect(result.nextPageUrl).toBe('/forum/view-thread/123/page/2')
+  it('should extract pagination info on first page', () => {
+    const result = extractThreadPage(mockThreadPageHtml, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: true,
     })
 
-    it('should extract post metadata correctly', () => {
-        const result = extractThreadPage(mockThreadPageHtml, {
-            threadId: '123',
-            pageNumber: 1,
-            isFirstPage: true,
-        })
+    expect(result.pagination).toMatchObject({
+      page: 1,
+      totalPages: 52,
+      hasNext: true,
+      hasPrevious: false,
+    })
+  })
 
-        const firstPost = result.posts[0]
-        expect(firstPost.author).toBe('GGG_Staff')
-        expect(firstPost.postId).toBe('12345')
-        expect(firstPost.contentText).toBeTruthy()
-        expect(firstPost.createdAt).toBeTruthy()
+  it('should extract pagination info on middle page', () => {
+    const html = `
+      <table class="forumTable">
+        <tr><td class="content-container"><div class="content">Post</div></td></tr>
+      </table>
+      <div class="pagination">
+        <a href="/forum/view-thread/123/page/1">Previous</a>
+        <a href="/forum/view-thread/123/page/1">1</a>
+        <a class="current" href="/forum/view-thread/123/page/25">25</a>
+        <a href="/forum/view-thread/123/page/26">26</a>
+        <a href="/forum/view-thread/123/page/52">52</a>
+        <a href="/forum/view-thread/123/page/26">Next</a>
+      </div>
+    `
+
+    const result = extractThreadPage(html, {
+      threadId: '123',
+      pageNumber: 25,
+      isFirstPage: false,
     })
 
-    it('should filter empty posts', () => {
-        const html = `
+    expect(result.pagination).toMatchObject({
+      page: 25,
+      totalPages: 52,
+      hasNext: true,
+      hasPrevious: true,
+    })
+  })
+
+  it('should extract pagination info on last page', () => {
+    const html = `
+      <table class="forumTable">
+        <tr><td class="content-container"><div class="content">Last post</div></td></tr>
+      </table>
+      <div class="pagination">
+        <a href="/forum/view-thread/123/page/51">Previous</a>
+        <a href="/forum/view-thread/123/page/1">1</a>
+        <a href="/forum/view-thread/123/page/51">51</a>
+        <a class="current" href="/forum/view-thread/123/page/52">52</a>
+      </div>
+    `
+
+    const result = extractThreadPage(html, {
+      threadId: '123',
+      pageNumber: 52,
+      isFirstPage: false,
+    })
+
+    expect(result.pagination).toMatchObject({
+      page: 52,
+      totalPages: 52,
+      hasNext: false,
+      hasPrevious: true,
+    })
+  })
+
+  it('should extract post metadata correctly', () => {
+    const result = extractThreadPage(mockThreadPageHtml, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: true,
+    })
+
+    const firstPost = result.posts[0]
+    expect(firstPost.author).toBe('GGG_Staff')
+    expect(firstPost.postId).toBe('12345')
+    expect(firstPost.contentText).toBeTruthy()
+    expect(firstPost.createdAt).toBeTruthy()
+  })
+
+  it('should filter empty posts', () => {
+    const html = `
       <table class="forumTable">
         <tr>
           <td class="content-container"><div class="content"></div></td>
@@ -105,21 +170,23 @@ describe('extractThreadPage', () => {
           <td><div class="post_anchor" id="2"></div></td>
         </tr>
       </table>
+      <div class="pagination">
+        <a class="current" href="/forum/view-thread/123/page/1">1</a>
+      </div>
     `
 
-        const result = extractThreadPage(html, {
-            threadId: '123',
-            pageNumber: 1,
-            isFirstPage: false,
-        })
-
-        // Should only have 1 post (empty post filtered out)
-        expect(result.posts).toHaveLength(1)
-        expect(result.posts[0].contentText).toBe('Valid post')
+    const result = extractThreadPage(html, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: false,
     })
 
-    it('should handle missing author gracefully', () => {
-        const html = `
+    // Should only have 1 post (empty post filtered out)
+    expect(result.posts).toHaveLength(1)
+    expect(result.posts[0].contentText).toBe('Valid post')
+  })
+  it('should handle missing author gracefully', () => {
+    const html = `
       <table class="forumTable">
         <tr>
           <td class="content-container"><div class="content">Post content</div></td>
@@ -131,13 +198,13 @@ describe('extractThreadPage', () => {
       </table>
     `
 
-        const result = extractThreadPage(html, {
-            threadId: '123',
-            pageNumber: 1,
-            isFirstPage: false,
-        })
-
-        expect(result.posts).toHaveLength(1)
-        expect(result.posts[0].author).toBe('Unknown')
+    const result = extractThreadPage(html, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: false,
     })
+
+    expect(result.posts).toHaveLength(1)
+    expect(result.posts[0].author).toBe('Unknown')
+  })
 })

@@ -1,14 +1,14 @@
-import Fastify, { FastifyInstance } from "fastify"
-import helmet from "@fastify/helmet"
-import cors from "@fastify/cors"
-import rateLimit from "@fastify/rate-limit"
-import swagger from "@fastify/swagger"
-import swaggerUi from "@fastify/swagger-ui"
-import { threadRoutes } from "./routes/threadRoutes"
-import categoryRoutes from "./routes/categoryRoutes"
-import categoriesRoutes from "./routes/categoriesRoutes"
-import healthRoutes from "./routes/healthRoutes"
-import { env } from "../config/env"
+import Fastify, { FastifyInstance } from 'fastify'
+import helmet from '@fastify/helmet'
+import cors from '@fastify/cors'
+import rateLimit from '@fastify/rate-limit'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
+import { threadRoutes } from './routes/threadRoutes'
+import categoryRoutes from './routes/categoryRoutes'
+import categoriesRoutes from './routes/categoriesRoutes'
+import healthRoutes from './routes/healthRoutes'
+import { env } from '../config/env'
 
 export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<FastifyInstance> {
   const app = Fastify({
@@ -17,11 +17,11 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
       transport: env.IS_PRODUCTION
         ? undefined
         : {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+            },
           },
-        },
     },
   })
 
@@ -33,7 +33,7 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
   await app.register(cors, {
     origin: corsOrigin,
     credentials: true,
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   })
 
   // Swagger API documentation
@@ -44,14 +44,12 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
         description: env.API_DESCRIPTION,
         version: env.API_VERSION,
       },
-      servers: [
-        { url: env.API_URL, description: env.NODE_ENV },
-      ],
+      servers: [{ url: env.API_URL, description: env.NODE_ENV }],
     },
   })
 
   await app.register(swaggerUi, {
-    routePrefix: "/documentation",
+    routePrefix: '/documentation',
   })
 
   // Rate limiting (disable for tests)
@@ -63,9 +61,9 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
   }
 
   // Routes
-  app.register(categoriesRoutes, { prefix: "/api" })
-  app.register(categoryRoutes, { prefix: "/api" })
-  app.register(threadRoutes, { prefix: "/api" })
+  app.register(categoriesRoutes, { prefix: '/api' })
+  app.register(categoryRoutes, { prefix: '/api' })
+  app.register(threadRoutes, { prefix: '/api' })
   app.register(healthRoutes)
 
   return app

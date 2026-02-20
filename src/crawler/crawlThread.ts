@@ -1,11 +1,13 @@
-import { fetchHtml } from "./fetchHtml"
-import { extractThreadPage } from "./extractThreadPage"
-import { getNextPageUrl } from "./pagination"
-import type { Post } from "../domain/thread"
+import { fetchHtml } from './fetchHtml'
+import { extractThreadPage } from './extractThreadPage'
+import { getNextPageUrl } from './pagination'
+import type { Post } from '../domain/thread'
 
-export async function crawlThread(
-  opts: { startUrl: string; threadId: string; maxPages?: number }
-): Promise<Post[]> {
+export async function crawlThread(opts: {
+  startUrl: string
+  threadId: string
+  maxPages?: number
+}): Promise<Post[]> {
   let url: string | null = opts.startUrl
   let pageNumber = 1
   let isFirstPage = true

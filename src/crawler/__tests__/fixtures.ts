@@ -31,7 +31,11 @@ export const mockThreadPageHtml = `
   </tr>
 </table>
 <div class="pagination">
-  <a href="/forum/view-thread/123/page/1">1</a>
+  <a class="current" href="/forum/view-thread/123/page/1">1</a>
+  <a href="/forum/view-thread/123/page/2">2</a>
+  <a href="/forum/view-thread/123/page/3">3</a>
+  <span class="separator">…</span>
+  <a href="/forum/view-thread/123/page/52">52</a>
   <a href="/forum/view-thread/123/page/2">Next</a>
 </div>
 </body>
@@ -68,7 +72,9 @@ export const mockCategoryPageHtml = `
   </tbody>
 </table>
 <div class="pagination">
-  <a href="/forum/view-forum/news/page/1">1</a>
+  <a class="current" href="/forum/view-forum/news/page/1">1</a>
+  <a href="/forum/view-forum/news/page/2">2</a>
+  <a href="/forum/view-forum/news/page/3">3</a>
   <a href="/forum/view-forum/news/page/2">Next</a>
 </div>
 </body>
@@ -94,6 +100,7 @@ export const mockLastPageHtml = `
 </table>
 <div class="pagination">
   <a href="/forum/view-thread/123/page/1">Previous</a>
+  <a class="current" href="/forum/view-thread/123/page/52">52</a>
 </div>
 </body>
 </html>

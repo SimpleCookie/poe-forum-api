@@ -1,17 +1,17 @@
 export const getCategorySchema = {
-    tags: ["Categories"],
-    description: "Get threads from a category",
-    params: {
-        type: "object",
-        properties: {
-            category: { type: "string", description: "Category slug" },
-        },
-        required: ["category"],
+  tags: ['Categories'],
+  description: 'Get threads from a category',
+  params: {
+    type: 'object',
+    properties: {
+      category: { type: 'string', description: 'Category slug' },
     },
-    querystring: {
-        type: "object",
-        properties: {
-            page: { type: "string", description: "Page number (default: 1)" },
-        },
+    required: ['category'],
+  },
+  querystring: {
+    type: 'object',
+    properties: {
+      page: { type: 'string', description: 'Page number (default: 1)' },
     },
+  },
 }
