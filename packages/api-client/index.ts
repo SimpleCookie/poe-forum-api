@@ -1,31 +1,42 @@
 // Configuration
 export { setBaseUrl, getBaseUrl, resetBaseUrl } from './config'
 
-// API Client with dynamic base URL support - Unversioned (backwards compat)
-export { getCategories, getCategory } from './client'
+// Versioned APIs - Each version has all functions
+import { getThread, getThreadV1, getThreadV2, getThreadV3 } from './client'
+import { getCategories, getCategory, getCategoriesV3, getCategoryV3 } from './client'
 
-// V3 Unified API - RECOMMENDED
-import { getCategoriesV3, getCategoryV3, getThreadV3 } from './client'
-
-export const categoriesV3 = {
-  getCategories: getCategoriesV3,
-  getCategory: getCategoryV3,
+/**
+ * V1 API - Deprecated format
+ * threads return: { page, nextPageUrl, posts with page field }
+ * categories are unversioned
+ */
+export const v1 = {
+  getThread: getThreadV1,
+  getCategories,
+  getCategory,
 }
 
-// Versioned Thread API
-import { getThread, getThreadV1, getThreadV2 } from './client'
+/**
+ * V2 API - Current format with pagination object
+ * threads return: { pagination: { page, totalPages, hasNext, hasPrevious, pageSize }, posts }
+ * categories are unversioned
+ */
+export const v2 = {
+  getThread: getThreadV2,
+  getCategories,
+  getCategory,
+}
 
-export const thread = {
-  getThread,
-  v1: {
-    getThread: getThreadV1,
-  },
-  v2: {
-    getThread: getThreadV2,
-  },
-  v3: {
-    getThread: getThreadV3,
-  },
+/**
+ * V3 API - Unified and recommended
+ * All endpoints under /api/v3/
+ * threads return: { pagination: { page, totalPages, hasNext, hasPrevious, pageSize }, posts }
+ * categories under /api/v3/
+ */
+export const v3 = {
+  getThread: getThreadV3,
+  getCategories: getCategoriesV3,
+  getCategory: getCategoryV3,
 }
 
 // Types - Strong response contracts for UI consumption
