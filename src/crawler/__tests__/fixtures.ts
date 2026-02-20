@@ -5,6 +5,7 @@ export const mockThreadPageHtml = `
 <html>
 <head><title>Thread</title></head>
 <body>
+<h1>Path of Exile - Release Notes</h1>
 <table class="forumTable">
   <tr>
     <td colspan="100">Page Header</td>

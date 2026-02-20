@@ -44,6 +44,7 @@ export interface Post {
 
 export interface ThreadPage {
   threadId: ThreadId
+  title?: string
   posts: Post[]
   pagination: Pageable
 }

@@ -10,6 +10,7 @@ describe('extractThreadPage', () => {
     })
 
     expect(result.posts).toHaveLength(2)
+    expect(result.title).toBeTruthy()
     expect(result.posts[0]).toMatchObject({
       threadId: '123',
       indexOnPage: 0,
@@ -206,5 +207,42 @@ describe('extractThreadPage', () => {
 
     expect(result.posts).toHaveLength(1)
     expect(result.posts[0].author).toBe('Unknown')
+  })
+  it('should extract thread title on first page only', () => {
+    const result = extractThreadPage(mockThreadPageHtml, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: true,
+    })
+
+    expect(result.title).toBeTruthy()
+    expect(typeof result.title).toBe('string')
+  })
+
+  it('should not extract title on subsequent pages', () => {
+    const html = `
+      <h1>Some Other Title</h1>
+      <table class="forumTable">
+        <tr>
+          <td class="content-container"><div class="content">Post</div></td>
+          <td class="posted-by">
+            <div class="profile-link"><a>User</a></div>
+            <div class="post_date">2024-02-10 10:00:00</div>
+          </td>
+          <td><div class="post_anchor" id="1"></div></td>
+        </tr>
+      </table>
+      <div class="pagination">
+        <a class="current" href="/forum/view-thread/123/page/2">2</a>
+      </div>
+    `
+
+    const result = extractThreadPage(html, {
+      threadId: '123',
+      pageNumber: 2,
+      isFirstPage: false,
+    })
+
+    expect(result.title).toBeUndefined()
   })
 })

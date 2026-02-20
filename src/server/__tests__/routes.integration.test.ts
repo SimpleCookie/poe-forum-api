@@ -1,4 +1,5 @@
 import fastify from 'fastify'
+import { threadRoutes } from '../routes/threadRoutes'
 import { threadRoutesV1 } from '../routes/v1/threadRoutesV1'
 import { threadRoutesV2 } from '../routes/v2/threadRoutesV2'
 import { ThreadService } from '../../service/threadService'
@@ -126,6 +127,62 @@ describe('Thread Routes Integration Tests', () => {
     })
   })
 
+  describe('Unversioned Routes (Backwards Compatibility)', () => {
+    beforeEach(async () => {
+      app = fastify()
+      await app.register(threadRoutes)
+    })
+
+    it('✓ GET /api/thread/:id returns old format with page field on posts', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/thread/123',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+
+      // Unversioned should match V1 format for backwards compatibility
+      expect(body).toHaveProperty('threadId', '123')
+      expect(body).toHaveProperty('posts')
+      expect(body).toHaveProperty('page', 1)
+      expect(body).toHaveProperty('nextPageUrl')
+      expect(Array.isArray(body.posts)).toBe(true)
+
+      // Posts should have page field (V1 format)
+      body.posts.forEach((post: any) => {
+        expect(post).toHaveProperty('page', 1)
+      })
+
+      console.log('✓ Unversioned endpoint returns V1 format for backwards compatibility')
+    })
+
+    it('✓ GET /api/thread/:id is identical to /api/v1/thread/:id', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+      const unversionedResponse = await app.inject({
+        method: 'GET',
+        url: '/thread/456',
+      })
+      const unversionedBody = JSON.parse(unversionedResponse.payload)
+
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+      const app1 = fastify()
+      await app1.register(threadRoutesV1)
+      const v1Response = await app1.inject({
+        method: 'GET',
+        url: '/v1/thread/456',
+      })
+      const v1Body = JSON.parse(v1Response.payload)
+
+      // Both should have identical structure
+      expect(unversionedBody).toEqual(v1Body)
+      console.log('✓ Unversioned and V1 endpoints return identical responses')
+      await app1.close()
+    })
+  })
+
   describe('V2 Routes (Current)', () => {
     beforeEach(async () => {
       app = fastify()
@@ -233,83 +290,120 @@ describe('Thread Routes Integration Tests', () => {
     })
   })
 
-  describe('V1 vs V2 Compatibility', () => {
-    it('✓ Both versions call ThreadService with same parameters', async () => {
+  describe('API Versions Compatibility', () => {
+    it('✓ Unversioned, V1, and V2 call ThreadService with same parameters', async () => {
       const app1 = fastify()
       const app2 = fastify()
+      const app3 = fastify()
 
-      await app1.register(threadRoutesV1)
-      await app2.register(threadRoutesV2)
+      await app1.register(threadRoutes)
+      await app2.register(threadRoutesV1)
+      await app3.register(threadRoutesV2)
 
-      const getCount = jest.fn().mockResolvedValue({ data: mockThreadHTML })
-      mockedAxios.get.mockImplementation(getCount)
-
-      // Request V1
+      // Request unversioned
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
       await app1.inject({
         method: 'GET',
-        url: '/v1/thread/456?page=2',
+        url: '/thread/789?page=2',
       })
 
       const firstCall = mockedAxios.get.mock.calls[0]
 
-      // Update mock for V2
-      mockedAxios.get.mockClear()
+      // Request V1
       mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
-
-      // Request V2
       await app2.inject({
         method: 'GET',
-        url: '/v2/thread/456?page=2',
+        url: '/v1/thread/789?page=2',
       })
 
-      const secondCall = mockedAxios.get.mock.calls[0]
+      const secondCall = mockedAxios.get.mock.calls[1]
 
-      // Both should have called with same thread ID (URL encoded)
+      // Request V2
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+      await app3.inject({
+        method: 'GET',
+        url: '/v2/thread/789?page=2',
+      })
+
+      const thirdCall = mockedAxios.get.mock.calls[2]
+
+      // All should fetch same data from service
       expect(firstCall).toEqual(secondCall)
-      console.log('✓ V1 and V2 fetch same data from service')
+      expect(secondCall).toEqual(thirdCall)
+      console.log('✓ All endpoint versions fetch same data from service')
+
+      await app1.close()
+      await app2.close()
+      await app3.close()
+    })
+
+    it('✓ Unversioned and V1 have identical responses (both V1 format)', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+      const app1 = fastify()
+      await app1.register(threadRoutes)
+      const unversionedResponse = await app1.inject({
+        method: 'GET',
+        url: '/thread/999',
+      })
+      const unversionedBody = JSON.parse(unversionedResponse.payload)
+
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+      const app2 = fastify()
+      await app2.register(threadRoutesV1)
+      const v1Response = await app2.inject({
+        method: 'GET',
+        url: '/v1/thread/999',
+      })
+      const v1Body = JSON.parse(v1Response.payload)
+
+      // Both should be V1 format
+      expect(unversionedBody.posts[0]).toHaveProperty('page')
+      expect(v1Body.posts[0]).toHaveProperty('page')
+      expect(unversionedBody).toEqual(v1Body)
+
+      console.log('✓ Unversioned and V1 responses are identical (V1 format)')
 
       await app1.close()
       await app2.close()
     })
 
-    it('✓ V1 posts have page field, V2 posts do not', async () => {
-      const app1 = fastify()
-      const app2 = fastify()
-
-      await app1.register(threadRoutesV1)
-      await app2.register(threadRoutesV2)
-
+    it('✓ V2 has different structure (pagination object, no page on posts)', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+      const app1 = fastify()
+      await app1.register(threadRoutesV1)
       const v1Response = await app1.inject({
         method: 'GET',
-        url: '/v1/thread/789',
+        url: '/v1/thread/888',
       })
       const v1Body = JSON.parse(v1Response.payload)
 
       mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+      const app2 = fastify()
+      await app2.register(threadRoutesV2)
       const v2Response = await app2.inject({
         method: 'GET',
-        url: '/v2/thread/789',
+        url: '/v2/thread/888',
       })
       const v2Body = JSON.parse(v2Response.payload)
 
-      // V1: posts have page
+      // V1: posts have page, no pagination object
       expect(v1Body.posts[0]).toHaveProperty('page')
       expect(v1Body).toHaveProperty('page')
       expect(v1Body).toHaveProperty('nextPageUrl')
+      expect(v1Body).not.toHaveProperty('pagination')
 
       // V2: posts don't have page, but pagination object exists
       expect(v2Body.posts[0]).not.toHaveProperty('page')
+      expect(v2Body).not.toHaveProperty('page')
+      expect(v2Body).not.toHaveProperty('nextPageUrl')
       expect(v2Body).toHaveProperty('pagination')
-      expect(v2Body.pagination).toHaveProperty('page')
       expect(v2Body.pagination).toHaveProperty('hasNext')
 
-      // Different structure, same thread data
+      // Same thread data
       expect(v1Body.threadId).toBe(v2Body.threadId)
       expect(v1Body.posts.length).toBe(v2Body.posts.length)
-      expect(v1Body.page).toBe(v2Body.pagination.page)
 
-      console.log('✓ V1 and V2 have different response structures but same data')
+      console.log('✓ V2 has distinct structure from V1 (pagination object)')
 
       await app1.close()
       await app2.close()

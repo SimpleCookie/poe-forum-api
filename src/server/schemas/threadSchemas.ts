@@ -19,6 +19,7 @@ export const getThreadSchema = {
       type: 'object',
       properties: {
         threadId: { type: 'string', description: 'Thread ID' },
+        title: { type: ['string', 'null'], description: 'Thread title (only on first page)' },
         posts: {
           type: 'array',
           description: 'List of posts on this page',

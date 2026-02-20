@@ -9,6 +9,10 @@ export function extractThreadPage(
   opts: { threadId: string; pageNumber: number; isFirstPage: boolean }
 ): ThreadPage {
   const $ = cheerioLoad(html)
+
+  // Extract thread title from h1 (only on first page)
+  const title = opts.isFirstPage ? $('h1').first().text().trim() : undefined
+
   const rows = $('table.forumTable tr').toArray()
   const filtered = opts.isFirstPage ? rows.slice(1) : rows
 
@@ -46,6 +50,7 @@ export function extractThreadPage(
 
   return {
     threadId: opts.threadId,
+    ...(title && { title }),
     posts,
     pagination,
   }
