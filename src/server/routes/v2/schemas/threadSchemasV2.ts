@@ -4,7 +4,7 @@
  */
 export const getThreadSchema = {
   tags: ['Threads - V2 (Current)'],
-  description: 'Get a specific thread by ID with pagination',
+  description: 'Get a specific thread by ID with pagination. RECOMMENDED endpoint. Posts include HTML content with embedded images and blockquotes. Clients should sanitize HTML with DOMPurify or equivalent library before rendering to prevent XSS attacks.',
   params: {
     type: 'object',
     properties: {
@@ -37,8 +37,8 @@ export const getThreadSchema = {
                 type: ['string', 'null'],
                 description: 'ISO date when post was created',
               },
-              contentText: { type: 'string', description: 'Plain text content' },
-              contentHtml: { type: 'string', description: 'HTML content' },
+              contentText: { type: 'string', description: 'Plain text content (cleaned, for fallback or search)' },
+              contentHtml: { type: 'string', description: 'HTML content with formatting, blockquotes, and embedded images. Images appear inline at their original position. IMPORTANT: Sanitize with DOMPurify or similar before rendering to prevent XSS attacks.' },
               indexOnPage: {
                 type: 'number',
                 description: 'Position on the page (0-indexed)',

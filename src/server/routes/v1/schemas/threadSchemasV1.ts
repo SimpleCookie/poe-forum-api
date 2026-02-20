@@ -5,7 +5,7 @@
  */
 export const getThreadSchema = {
   tags: ['Threads - V1 (Deprecated)'],
-  description: 'Get a specific thread by ID (deprecated format)',
+  description: 'Get a specific thread by ID (deprecated format). Posts include HTML content with embedded images and blockquotes. Clients should sanitize HTML with DOMPurify or equivalent library before rendering. Use /api/v2/thread/:id for current version.',
   params: {
     type: 'object',
     properties: {
@@ -35,8 +35,8 @@ export const getThreadSchema = {
               threadId: { type: 'string' },
               author: { type: 'string' },
               createdAt: { type: ['string', 'null'] },
-              contentText: { type: 'string' },
-              contentHtml: { type: 'string' },
+              contentText: { type: 'string', description: 'Plain text content (cleaned, for fallback or search)' },
+              contentHtml: { type: 'string', description: 'HTML content with formatting, blockquotes, and embedded images. IMPORTANT: Sanitize with DOMPurify before rendering to prevent XSS.' },
               indexOnPage: { type: 'number' },
               page: { type: 'number', description: 'Page number (deprecated)' },
             },
