@@ -33,12 +33,12 @@ export interface Pageable {
 }
 
 export interface Post {
-  postId: string | null // if you can derive it
+  postId: string
   author: string
-  createdAt: string | null // ISO if you can parse
-  contentText: string // cleaned text
-  contentHtml: string // optional, if you want richer rendering
-  indexOnPage: number // position in the current page
+  createdAt: string
+  contentText: string
+  contentHtml: string
+  indexOnPage: number
   threadId: string
 }
 

@@ -33,20 +33,34 @@ export function extractThreadPage(
     }
   })
 
+  interface RawPost {
+    indexOnPage: number
+    contentText: string
+    contentHtml: string
+    author: string | null
+    createdAtRaw: string | null
+    postId: string | null
+  }
+
   const posts: Post[] = rawPosts
-    .filter((p) => p.contentText.length > 0)
+    .filter(
+      (p): p is RawPost & { postId: string; createdAtRaw: string } =>
+        p.contentText.length > 0 &&
+        p.postId !== null &&
+        p.createdAtRaw !== null
+    )
     .map((p) => ({
       threadId: opts.threadId,
       indexOnPage: p.indexOnPage,
       contentText: cleanContent(p.contentText),
       contentHtml: p.contentHtml,
       author: p.author ?? 'Unknown',
-      createdAt: p.createdAtRaw ? dayjs(p.createdAtRaw).toISOString() : null,
-      postId: p.postId ?? null,
+      createdAt: dayjs(p.createdAtRaw).toISOString(),
+      postId: p.postId,
     }))
 
   // Extract pagination information from any page
-  const pagination = extractPagination(html)
+  const pagination = extractPagination(html, posts.length)
 
   return {
     threadId: opts.threadId,

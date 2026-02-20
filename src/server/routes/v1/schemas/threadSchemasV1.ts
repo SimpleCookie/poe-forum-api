@@ -24,17 +24,17 @@ export const getThreadSchema = {
       type: 'object',
       properties: {
         threadId: { type: 'string', description: 'Thread ID' },
-        title: { type: ['string', 'null'], description: 'Thread title (only on first page)' },
+        title: { type: 'string', description: 'Thread title (only on first page)' },
         posts: {
           type: 'array',
           description: 'List of posts on this page',
           items: {
             type: 'object',
             properties: {
-              postId: { type: ['string', 'null'] },
+              postId: { type: 'string' },
               threadId: { type: 'string' },
               author: { type: 'string' },
-              createdAt: { type: ['string', 'null'] },
+              createdAt: { type: 'string' },
               contentText: { type: 'string', description: 'Plain text content (cleaned, for fallback or search)' },
               contentHtml: { type: 'string', description: 'HTML content with formatting, blockquotes, and embedded images. IMPORTANT: Sanitize with DOMPurify before rendering to prevent XSS.' },
               indexOnPage: { type: 'number' },

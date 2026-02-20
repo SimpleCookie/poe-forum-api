@@ -13,7 +13,7 @@ export function getNextPageUrl(html: string): string | null {
  * @param html - The HTML content containing pagination
  * @returns Pageable object with current page, total pages, and navigation state
  */
-export function extractPagination(html: string): Pageable {
+export function extractPagination(html: string, pageSize: number): Pageable {
   const $ = cheerioLoad(html)
 
   // Get current page from the active page indicator
@@ -43,5 +43,6 @@ export function extractPagination(html: string): Pageable {
     totalPages,
     hasNext,
     hasPrevious,
+    pageSize,
   }
 }

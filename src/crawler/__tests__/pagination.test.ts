@@ -28,24 +28,26 @@ describe('pagination', () => {
 
   describe('extractPagination', () => {
     it('should extract pagination from first page', () => {
-      const result = extractPagination(mockThreadPageHtml)
+      const result = extractPagination(mockThreadPageHtml, 20)
 
       expect(result).toEqual({
         page: 1,
         totalPages: 52,
         hasNext: true,
         hasPrevious: false,
+        pageSize: 20,
       })
     })
 
     it('should extract pagination from last page', () => {
-      const result = extractPagination(mockLastPageHtml)
+      const result = extractPagination(mockLastPageHtml, 20)
 
       expect(result).toEqual({
         page: 52,
         totalPages: 52,
         hasNext: false,
         hasPrevious: true,
+        pageSize: 20,
       })
     })
 
@@ -63,13 +65,14 @@ describe('pagination', () => {
         </div>
       `
 
-      const result = extractPagination(html)
+      const result = extractPagination(html, 20)
 
       expect(result).toEqual({
         page: 25,
         totalPages: 52,
         hasNext: true,
         hasPrevious: true,
+        pageSize: 20,
       })
     })
 
@@ -80,13 +83,14 @@ describe('pagination', () => {
         </div>
       `
 
-      const result = extractPagination(html)
+      const result = extractPagination(html, 20)
 
       expect(result).toEqual({
         page: 1,
         totalPages: 1,
         hasNext: false,
         hasPrevious: false,
+        pageSize: 20,
       })
     })
 
@@ -103,13 +107,14 @@ describe('pagination', () => {
         </div>
       `
 
-      const result = extractPagination(html)
+      const result = extractPagination(html, 20)
 
       expect(result).toEqual({
         page: 4,
         totalPages: 5,
         hasNext: true,
         hasPrevious: true,
+        pageSize: 20,
       })
     })
 
@@ -127,11 +132,12 @@ describe('pagination', () => {
         </div>
       `
 
-      const result = extractPagination(html)
+      const result = extractPagination(html, 20)
 
       expect(result.totalPages).toBe(52)
       expect(result.page).toBe(1)
       expect(result.hasNext).toBe(true)
+      expect(result.pageSize).toBe(20)
     })
 
     it('should default to page 1 if no current indicator found', () => {
@@ -143,10 +149,11 @@ describe('pagination', () => {
         </div>
       `
 
-      const result = extractPagination(html)
+      const result = extractPagination(html, 20)
 
       expect(result.page).toBe(1)
       expect(result.totalPages).toBe(3)
+      expect(result.pageSize).toBe(20)
     })
 
     it('should correctly identify hasNext based on Next link presence', () => {
@@ -158,7 +165,7 @@ describe('pagination', () => {
         </div>
       `
 
-      const resultWithNext = extractPagination(htmlWithNext)
+      const resultWithNext = extractPagination(htmlWithNext, 20)
       expect(resultWithNext.hasNext).toBe(true)
 
       const htmlWithoutNext = `
@@ -168,7 +175,7 @@ describe('pagination', () => {
         </div>
       `
 
-      const resultWithoutNext = extractPagination(htmlWithoutNext)
+      const resultWithoutNext = extractPagination(htmlWithoutNext, 20)
       expect(resultWithoutNext.hasNext).toBe(false)
     })
 
@@ -182,7 +189,7 @@ describe('pagination', () => {
         </div>
       `
 
-      const resultWithPrevious = extractPagination(htmlWithPrevious)
+      const resultWithPrevious = extractPagination(htmlWithPrevious, 20)
       expect(resultWithPrevious.hasPrevious).toBe(true)
 
       const htmlWithoutPrevious = `
@@ -194,7 +201,7 @@ describe('pagination', () => {
         </div>
       `
 
-      const resultWithoutPrevious = extractPagination(htmlWithoutPrevious)
+      const resultWithoutPrevious = extractPagination(htmlWithoutPrevious, 20)
       expect(resultWithoutPrevious.hasPrevious).toBe(false)
     })
   })

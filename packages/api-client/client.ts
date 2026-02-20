@@ -73,5 +73,49 @@ export const getThread = async (
     return { data, status: res.status, headers: res.headers } as getThreadResponse
 }
 
+/**
+ * Get thread using V1 API (deprecated format with page on posts and nextPageUrl)
+ */
+export const getThreadV1 = async (
+    id: string,
+    params?: GetThreadParams,
+    options?: RequestInit
+): Promise<getThreadResponse> => {
+    const baseUrl = getBaseUrl()
+    const queryStr = params?.page ? `?page=${params.page}` : ''
+    const url = `${baseUrl}/api/v1/thread/${id}${queryStr}`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data: getThreadResponse['data'] = body ? JSON.parse(body) : {}
+    return { data, status: res.status, headers: res.headers } as getThreadResponse
+}
+
+/**
+ * Get thread using V2 API (current format with pagination object)
+ */
+export const getThreadV2 = async (
+    id: string,
+    params?: GetThreadParams,
+    options?: RequestInit
+): Promise<getThreadResponse> => {
+    const baseUrl = getBaseUrl()
+    const queryStr = params?.page ? `?page=${params.page}` : ''
+    const url = `${baseUrl}/api/v2/thread/${id}${queryStr}`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data: getThreadResponse['data'] = body ? JSON.parse(body) : {}
+    return { data, status: res.status, headers: res.headers } as getThreadResponse
+}
+
 // Re-export types
 export type { getCategoriesResponse, getCategoryResponse, getThreadResponse }

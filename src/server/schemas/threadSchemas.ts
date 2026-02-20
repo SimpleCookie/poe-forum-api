@@ -19,18 +19,18 @@ export const getThreadSchema = {
             type: 'object',
             properties: {
                 threadId: { type: 'string', description: 'Thread ID' },
-                title: { type: ['string', 'null'], description: 'Thread title (only on first page)' },
+                title: { type: 'string', description: 'Thread title (only on first page)' },
                 posts: {
                     type: 'array',
                     description: 'List of posts on this page',
                     items: {
                         type: 'object',
                         properties: {
-                            postId: { type: ['string', 'null'], description: 'Post ID' },
+                            postId: { type: 'string', description: 'Post ID' },
                             threadId: { type: 'string', description: 'Thread ID' },
                             author: { type: 'string', description: 'Author of the post' },
                             createdAt: {
-                                type: ['string', 'null'],
+                                type: 'string',
                                 description: 'ISO date when post was created',
                             },
                             contentText: { type: 'string', description: 'Plain text content (cleaned, for fallback or search)' },
@@ -47,13 +47,9 @@ export const getThreadSchema = {
                         totalPages: { type: 'number', description: 'Total number of pages' },
                         hasNext: { type: 'boolean', description: 'Whether there is a next page' },
                         hasPrevious: { type: 'boolean', description: 'Whether there is a previous page' },
-                        totalItems: {
-                            type: ['number', 'null'],
-                            description: 'Total number of posts (optional)',
-                        },
                         pageSize: {
-                            type: ['number', 'null'],
-                            description: 'Number of items on current page (optional)',
+                            type: 'number',
+                            description: 'Number of items on this page',
                         },
                     },
                 },
