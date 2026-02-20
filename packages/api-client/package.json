@@ -1,33 +1,33 @@
 {
-    "name": "@devgroup.se/poe-forum-api",
-    "version": "2.0.0",
-    "description": "Auto-generated API client for Path of Exile Forum Crawler",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "files": [
-        "dist",
-        "README.md"
-    ],
-    "scripts": {
-        "build": "tsc"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/yourusername/poe-forum-mobile.git"
-    },
-    "keywords": [
-        "poe",
-        "path-of-exile",
-        "api-client",
-        "swagger",
-        "generated"
-    ],
-    "author": "devgroup.se",
-    "license": "MIT",
-    "engines": {
-        "node": ">=18.0.0"
-    }
+  "name": "@devgroup.se/poe-forum-api",
+  "version": "2.0.0",
+  "description": "Auto-generated API client for Path of Exile Forum Crawler",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/poe-forum-mobile.git"
+  },
+  "keywords": [
+    "poe",
+    "path-of-exile",
+    "api-client",
+    "swagger",
+    "generated"
+  ],
+  "author": "devgroup.se",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
