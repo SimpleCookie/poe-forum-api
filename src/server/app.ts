@@ -5,6 +5,8 @@ import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import { threadRoutes } from './routes/threadRoutes'
+import { threadRoutesV1 } from './routes/v1/threadRoutesV1'
+import { threadRoutesV2 } from './routes/v2/threadRoutesV2'
 import categoryRoutes from './routes/categoryRoutes'
 import categoriesRoutes from './routes/categoriesRoutes'
 import healthRoutes from './routes/healthRoutes'
@@ -17,11 +19,11 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
       transport: env.IS_PRODUCTION
         ? undefined
         : {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-            },
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
           },
+        },
     },
   })
 
@@ -64,6 +66,9 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
   app.register(categoriesRoutes, { prefix: '/api' })
   app.register(categoryRoutes, { prefix: '/api' })
   app.register(threadRoutes, { prefix: '/api' })
+  // Versioned thread routes for backwards compatibility
+  app.register(threadRoutesV1, { prefix: '/api' })
+  app.register(threadRoutesV2, { prefix: '/api' })
   app.register(healthRoutes)
 
   return app
