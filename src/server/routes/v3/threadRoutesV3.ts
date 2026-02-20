@@ -5,18 +5,20 @@ import {
   validatePageNumber,
   ValidationError,
 } from '../../../config/inputValidation'
+import { getThreadSchema } from './schemas/threadSchemasV3'
 
 const threadService = new ThreadService()
 
 /**
- * V2 Thread Routes - CURRENT
- * Updated API with improved pagination response format.
+ * V3 Thread Routes - UNIFIED CURRENT VERSION
+ * All thread endpoints unified under /api/v3/
+ * Provides consistent pagination with totalPages, hasNext, hasPrevious, pageSize
  */
-export async function threadRoutesV2(app: FastifyInstance) {
+export async function threadRoutesV3(app: FastifyInstance) {
   app.get<{
     Params: { id: string }
     Querystring: { page?: string }
-  }>('/v2/thread/:id', { schema: { tags: ['Threads - V2 (Current)'], description: 'Get a specific thread by ID with pagination. RECOMMENDED endpoint.' } }, async (request, reply) => {
+  }>('/thread/:id', { schema: getThreadSchema }, async (request, reply) => {
     try {
       const { id } = request.params
       const pageNumber = Number(request.query.page ?? '1')

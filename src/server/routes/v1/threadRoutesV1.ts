@@ -5,7 +5,6 @@ import {
   validatePageNumber,
   ValidationError,
 } from '../../../config/inputValidation'
-import { getThreadSchema } from './schemas/threadSchemasV1'
 import type { Post } from '../../../domain/thread'
 
 const threadService = new ThreadService()
@@ -20,7 +19,7 @@ export async function threadRoutesV1(app: FastifyInstance) {
   app.get<{
     Params: { id: string }
     Querystring: { page?: string }
-  }>('/v1/thread/:id', { schema: getThreadSchema }, async (request, reply) => {
+  }>('/v1/thread/:id', { schema: { tags: ['Threads - V1 (Deprecated)'] } }, async (request, reply) => {
     try {
       const { id } = request.params
       const pageNumber = Number(request.query.page ?? '1')

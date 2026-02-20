@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { ThreadService } from '../../service/threadService'
 import { validateThreadId, validatePageNumber, ValidationError } from '../../config/inputValidation'
-import { getThreadSchema } from './v1/schemas/threadSchemasV1'
 import type { Post } from '../../domain/thread'
 
 const threadService = new ThreadService()
@@ -17,7 +16,7 @@ export async function threadRoutes(app: FastifyInstance) {
   app.get<{
     Params: { id: string }
     Querystring: { page?: string }
-  }>('/thread/:id', { schema: getThreadSchema }, async (request, reply) => {
+  }>('/thread/:id', { schema: { tags: ['Threads'], description: 'Get a specific thread by ID' } }, async (request, reply) => {
     try {
       const { id } = request.params
       const pageNumber = Number(request.query.page ?? '1')

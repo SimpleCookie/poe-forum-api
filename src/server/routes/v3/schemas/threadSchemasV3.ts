@@ -1,10 +1,11 @@
 /**
- * V2 Thread Schemas - CURRENT
- * Swagger schemas for current V2 API endpoints with improved pagination.
+ * V3 Thread Schemas - CURRENT RECOMMENDED
+ * Swagger schemas for V3 API endpoints with improved pagination.
+ * V3 is the unified version with all routes (categories + threads) under /api/v3/
  */
 export const getThreadSchema = {
-  tags: ['Threads - V2 (Current)'],
-  description: 'Get a specific thread by ID with pagination. RECOMMENDED endpoint. Posts include HTML content with embedded images and blockquotes. Clients should sanitize HTML with DOMPurify or equivalent library before rendering to prevent XSS attacks.',
+  tags: ['Threads - V3'],
+  description: 'Get a specific thread by ID with pagination. Posts include HTML content with embedded images and blockquotes. Clients should sanitize HTML with DOMPurify or equivalent library before rendering to prevent XSS attacks.',
   params: {
     type: 'object',
     properties: {

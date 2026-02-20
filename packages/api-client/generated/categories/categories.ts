@@ -6,30 +6,26 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
-  GetCategories200,
-  GetCategory200,
-  GetCategory400,
-  GetCategory404,
-  GetCategoryParams
+  GetApiCategoryCategoryParams
 } from '../api.schemas';
 
 
 /**
  * Get all available forum categories
  */
-export type getCategoriesResponse200 = {
-  data: GetCategories200
+export type getApiCategoriesResponse200 = {
+  data: void
   status: 200
 }
 
-export type getCategoriesResponseSuccess = (getCategoriesResponse200) & {
+export type getApiCategoriesResponseSuccess = (getApiCategoriesResponse200) & {
   headers: Headers;
 };
 ;
 
-export type getCategoriesResponse = (getCategoriesResponseSuccess)
+export type getApiCategoriesResponse = (getApiCategoriesResponseSuccess)
 
-export const getGetCategoriesUrl = () => {
+export const getGetApiCategoriesUrl = () => {
 
 
   
@@ -37,9 +33,9 @@ export const getGetCategoriesUrl = () => {
   return `http://localhost:3000/api/categories`
 }
 
-export const getCategories = async ( options?: RequestInit): Promise<getCategoriesResponse> => {
+export const getApiCategories = async ( options?: RequestInit): Promise<getApiCategoriesResponse> => {
   
-  const res = await fetch(getGetCategoriesUrl(),
+  const res = await fetch(getGetApiCategoriesUrl(),
   {      
     ...options,
     method: 'GET'
@@ -50,40 +46,28 @@ export const getCategories = async ( options?: RequestInit): Promise<getCategori
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
   
-  const data: getCategoriesResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getCategoriesResponse
+  const data: getApiCategoriesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getApiCategoriesResponse
 }
 
 
 /**
  * Get threads from a category
  */
-export type getCategoryResponse200 = {
-  data: GetCategory200
+export type getApiCategoryCategoryResponse200 = {
+  data: void
   status: 200
 }
 
-export type getCategoryResponse400 = {
-  data: GetCategory400
-  status: 400
-}
-
-export type getCategoryResponse404 = {
-  data: GetCategory404
-  status: 404
-}
-
-export type getCategoryResponseSuccess = (getCategoryResponse200) & {
+export type getApiCategoryCategoryResponseSuccess = (getApiCategoryCategoryResponse200) & {
   headers: Headers;
 };
-export type getCategoryResponseError = (getCategoryResponse400 | getCategoryResponse404) & {
-  headers: Headers;
-};
+;
 
-export type getCategoryResponse = (getCategoryResponseSuccess | getCategoryResponseError)
+export type getApiCategoryCategoryResponse = (getApiCategoryCategoryResponseSuccess)
 
-export const getGetCategoryUrl = (category: string,
-    params?: GetCategoryParams,) => {
+export const getGetApiCategoryCategoryUrl = (category: string,
+    params?: GetApiCategoryCategoryParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -98,10 +82,10 @@ export const getGetCategoryUrl = (category: string,
   return stringifiedParams.length > 0 ? `http://localhost:3000/api/category/${category}?${stringifiedParams}` : `http://localhost:3000/api/category/${category}`
 }
 
-export const getCategory = async (category: string,
-    params?: GetCategoryParams, options?: RequestInit): Promise<getCategoryResponse> => {
+export const getApiCategoryCategory = async (category: string,
+    params?: GetApiCategoryCategoryParams, options?: RequestInit): Promise<getApiCategoryCategoryResponse> => {
   
-  const res = await fetch(getGetCategoryUrl(category,params),
+  const res = await fetch(getGetApiCategoryCategoryUrl(category,params),
   {      
     ...options,
     method: 'GET'
@@ -112,8 +96,8 @@ export const getCategory = async (category: string,
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
   
-  const data: getCategoryResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getCategoryResponse
+  const data: getApiCategoryCategoryResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getApiCategoryCategoryResponse
 }
 
 

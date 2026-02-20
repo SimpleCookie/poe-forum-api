@@ -5,55 +5,33 @@
  * API for browsing Path of Exile forum on mobile
  * OpenAPI spec version: 1.0.0
  */
-import type {
-  GetThread200,
-  GetThread400,
-  GetThreadParams
-} from '../api.schemas';
-
 
 /**
  * Get a specific thread by ID
  */
-export type getThreadResponse200 = {
-  data: GetThread200
+export type getApiThreadIdResponse200 = {
+  data: void
   status: 200
 }
 
-export type getThreadResponse400 = {
-  data: GetThread400
-  status: 400
-}
-
-export type getThreadResponseSuccess = (getThreadResponse200) & {
+export type getApiThreadIdResponseSuccess = (getApiThreadIdResponse200) & {
   headers: Headers;
 };
-export type getThreadResponseError = (getThreadResponse400) & {
-  headers: Headers;
-};
+;
 
-export type getThreadResponse = (getThreadResponseSuccess | getThreadResponseError)
+export type getApiThreadIdResponse = (getApiThreadIdResponseSuccess)
 
-export const getGetThreadUrl = (id: string,
-    params?: GetThreadParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetApiThreadIdUrl = (id: string,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `http://localhost:3000/api/thread/${id}?${stringifiedParams}` : `http://localhost:3000/api/thread/${id}`
-}
-
-export const getThread = async (id: string,
-    params?: GetThreadParams, options?: RequestInit): Promise<getThreadResponse> => {
   
-  const res = await fetch(getGetThreadUrl(id,params),
+
+  return `http://localhost:3000/api/thread/${id}`
+}
+
+export const getApiThreadId = async (id: string, options?: RequestInit): Promise<getApiThreadIdResponse> => {
+  
+  const res = await fetch(getGetApiThreadIdUrl(id),
   {      
     ...options,
     method: 'GET'
@@ -64,8 +42,8 @@ export const getThread = async (id: string,
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
   
-  const data: getThreadResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getThreadResponse
+  const data: getApiThreadIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getApiThreadIdResponse
 }
 
 

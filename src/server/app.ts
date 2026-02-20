@@ -7,6 +7,8 @@ import swaggerUi from '@fastify/swagger-ui'
 import { threadRoutes } from './routes/threadRoutes'
 import { threadRoutesV1 } from './routes/v1/threadRoutesV1'
 import { threadRoutesV2 } from './routes/v2/threadRoutesV2'
+import { threadRoutesV3 } from './routes/v3/threadRoutesV3'
+import { categoriesRoutesV3 } from './routes/v3/categoriesRoutesV3'
 import categoryRoutes from './routes/categoryRoutes'
 import categoriesRoutes from './routes/categoriesRoutes'
 import healthRoutes from './routes/healthRoutes'
@@ -66,9 +68,12 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
   app.register(categoriesRoutes, { prefix: '/api' })
   app.register(categoryRoutes, { prefix: '/api' })
   app.register(threadRoutes, { prefix: '/api' })
-  // Versioned thread routes for backwards compatibility
+  // Versioned routes for backwards compatibility
   app.register(threadRoutesV1, { prefix: '/api' })
   app.register(threadRoutesV2, { prefix: '/api' })
+  // V3 - Unified version with all endpoints
+  app.register(categoriesRoutesV3, { prefix: '/api/v3' })
+  app.register(threadRoutesV3, { prefix: '/api/v3' })
   app.register(healthRoutes)
 
   return app

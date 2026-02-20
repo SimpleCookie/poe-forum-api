@@ -5,52 +5,10 @@
  * API for browsing Path of Exile forum on mobile
  * OpenAPI spec version: 1.0.0
  */
-export type GetCategories200Poe1Item = {
-  name?: string;
-  slug?: string;
-  endpoint?: string;
-  sourceUrl?: string;
-};
-
-export type GetCategories200Poe2Item = {
-  name?: string;
-  slug?: string;
-  endpoint?: string;
-  sourceUrl?: string;
-};
-
-export type GetCategories200 = {
-  poe1?: GetCategories200Poe1Item[];
-  poe2?: GetCategories200Poe2Item[];
-};
-
-export type GetCategoryParams = {
+export type GetApiCategoryCategoryParams = {
 /**
  * Page number (default: 1)
  */
 page?: string;
-};
-
-export type GetCategory200 = { [key: string]: unknown };
-
-export type GetCategory400 = {
-  error?: string;
-};
-
-export type GetCategory404 = {
-  error?: string;
-};
-
-export type GetThreadParams = {
-/**
- * Page number (default: 1)
- */
-page?: string;
-};
-
-export type GetThread200 = { [key: string]: unknown };
-
-export type GetThread400 = {
-  error?: string;
 };
 

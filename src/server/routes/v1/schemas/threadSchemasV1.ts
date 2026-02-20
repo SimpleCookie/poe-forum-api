@@ -22,6 +22,7 @@ export const getThreadSchema = {
   response: {
     200: {
       type: 'object',
+      required: ['threadId', 'posts', 'page'],
       properties: {
         threadId: { type: 'string', description: 'Thread ID' },
         title: { type: 'string', description: 'Thread title (only on first page)' },
@@ -30,6 +31,7 @@ export const getThreadSchema = {
           description: 'List of posts on this page',
           items: {
             type: 'object',
+            required: ['postId', 'threadId', 'author', 'createdAt', 'contentText', 'contentHtml', 'indexOnPage', 'page'],
             properties: {
               postId: { type: 'string' },
               threadId: { type: 'string' },
