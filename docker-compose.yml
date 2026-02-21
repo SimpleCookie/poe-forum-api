@@ -16,6 +16,12 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-50}
       API_URL: ${API_URL:-https://api.yourdomain.com}
+      THREAD_CACHE_ENABLED: ${THREAD_CACHE_ENABLED:-true}
+      THREAD_CACHE_TTL_MS: ${THREAD_CACHE_TTL_MS:-300000}
+      DATABASE_URL: ${DATABASE_URL:-postgres://poe:poe@postgres:5432/poe_forum_mobile}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
+    depends_on:
+      - postgres
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
@@ -33,6 +39,24 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: poe-forum-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-poe_forum_mobile}
+      POSTGRES_USER: ${POSTGRES_USER:-poe}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-poe}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-poe} -d ${POSTGRES_DB:-poe_forum_mobile}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Optional: Add a reverse proxy (nginx)
   # nginx:
   #   image: nginx:alpine
@@ -43,3 +67,6 @@ services:
   #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
   #   depends_on:
   #     - api
+
+volumes:
+  postgres_data:

@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ThreadPage {
+  threadId    String   @map("thread_id")
+  pageNumber  Int      @map("page_number")
+  title       String?
+  totalPages  Int      @map("total_pages")
+  hasNext     Boolean  @map("has_next")
+  hasPrevious Boolean  @map("has_previous")
+  pageSize    Int      @map("page_size")
+  cachedAt    DateTime @default(now()) @map("cached_at")
+
+  posts ThreadPagePost[]
+
+  @@id([threadId, pageNumber])
+  @@map("thread_pages")
+}
+
+model Post {
+  threadId      String   @map("thread_id")
+  postId        String   @map("post_id")
+  author        String
+  createdAt     DateTime @map("created_at")
+  contentText   String   @map("content_text")
+  contentHtml   String   @map("content_html")
+  indexOnPage   Int      @map("index_on_page")
+  contentHash   String   @map("content_hash")
+  firstSeenAt   DateTime @default(now()) @map("first_seen_at")
+  lastSeenAt    DateTime @default(now()) @map("last_seen_at")
+  lastChangedAt DateTime @default(now()) @map("last_changed_at")
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+
+  pages ThreadPagePost[]
+
+  @@id([threadId, postId])
+  @@map("posts")
+}
+
+model ThreadPagePost {
+  threadId    String @map("thread_id")
+  pageNumber  Int    @map("page_number")
+  postId      String @map("post_id")
+  indexOnPage Int    @map("index_on_page")
+
+  threadPage ThreadPage @relation(fields: [threadId, pageNumber], references: [threadId, pageNumber], onDelete: Cascade)
+  post       Post       @relation(fields: [threadId, postId], references: [threadId, postId], onDelete: Cascade)
+
+  @@id([threadId, pageNumber, postId])
+  @@map("thread_page_posts")
+}

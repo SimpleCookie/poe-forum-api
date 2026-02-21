@@ -5,6 +5,7 @@ A high-performance, secure API for browsing Path of Exile forum on mobile device
 ## Features
 
 ✅ **Thread & Category Browsing** - Fetch PoE forum threads and categories with full pagination  
+✅ **Long-Lived Thread Cache** - PostgreSQL-backed thread/post cache with edit detection  
 ✅ **Security Hardened** - SSRF protection, input validation, rate limiting, security headers  
 ✅ **Type-Safe** - Full TypeScript support with auto-generated client types  
 ✅ **Scalable** - Built on Fastify for high performance  
@@ -16,6 +17,7 @@ A high-performance, secure API for browsing Path of Exile forum on mobile device
 - **Backend**: Fastify 5.7 with Helmet, CORS, Rate Limiting
 - **Scraping**: Puppeteer with headless browser
 - **HTML Parsing**: Cheerio
+- **Database**: PostgreSQL (optional, for durable cache)
 - **Validation**: Custom input validators with SSRF protection
 - **Documentation**: Fastify Swagger + Swagger UI
 - **Client Generation**: Orval (OpenAPI → TypeScript client)
@@ -46,6 +48,32 @@ npm start
 ```
 
 The API will be available at `http://localhost:3000`
+
+## Long-Lived Cache (PostgreSQL)
+
+Thread pages can be cached in PostgreSQL to avoid re-crawling unchanged pages and to persist data across restarts.
+
+- Cache key: `threadId + page`
+- Post identity: `threadId + postId`
+- Edit detection: content hash (`contentText + contentHtml`) updates `last_changed_at`
+- Soft delete: posts removed from a crawled page are marked `is_deleted=true`
+
+### Local development with Docker Desktop
+
+```bash
+# from project root
+cp .env.example .env
+docker-compose up -d postgres
+npm run dev
+```
+
+Or start both API and Postgres with Docker:
+
+```bash
+docker-compose up -d
+```
+
+The API auto-creates required cache tables on startup when `THREAD_CACHE_ENABLED=true` and `DATABASE_URL` is set.
 
 ### API Documentation
 

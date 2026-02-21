@@ -35,6 +35,13 @@ export const env = {
     FETCH_CACHE_TTL_MS: parseInt(process.env.FETCH_CACHE_TTL_MS || '60000', 10),
     FETCH_CACHE_MAX_ENTRIES: parseInt(process.env.FETCH_CACHE_MAX_ENTRIES || '200', 10),
 
+    // Thread cache (database-backed)
+    THREAD_CACHE_ENABLED:
+        process.env.THREAD_CACHE_ENABLED === 'true' || Boolean(process.env.DATABASE_URL),
+    THREAD_CACHE_TTL_MS: parseInt(process.env.THREAD_CACHE_TTL_MS || '300000', 10),
+    DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_SSL: process.env.DATABASE_SSL === 'true',
+
     // Production flags
     IS_PRODUCTION: process.env.NODE_ENV === 'production',
     IS_DEVELOPMENT: process.env.NODE_ENV === 'development',
@@ -65,6 +72,14 @@ export function validateEnv() {
 
     if (isNaN(env.FETCH_CACHE_MAX_ENTRIES) || env.FETCH_CACHE_MAX_ENTRIES < 0) {
         errors.push('FETCH_CACHE_MAX_ENTRIES must be a non-negative integer')
+    }
+
+    if (isNaN(env.THREAD_CACHE_TTL_MS) || env.THREAD_CACHE_TTL_MS < 0) {
+        errors.push('THREAD_CACHE_TTL_MS must be a non-negative integer')
+    }
+
+    if (env.THREAD_CACHE_ENABLED && !env.DATABASE_URL) {
+        errors.push('DATABASE_URL must be set when THREAD_CACHE_ENABLED=true')
     }
 
     if (errors.length > 0) {
