@@ -10,6 +10,7 @@ import { threadRoutesV2 } from './routes/v2/threadRoutesV2'
 import { threadRoutesV3 } from './routes/v3/threadRoutesV3'
 import { threadRoutesV4 } from './routes/v4/threadRoutesV4'
 import { categoriesRoutesV3 } from './routes/v3/categoriesRoutesV3'
+import { categoriesRoutesV4 } from './routes/v4/categoriesRoutesV4'
 import categoryRoutes from './routes/categoryRoutes'
 import categoriesRoutes from './routes/categoriesRoutes'
 import healthRoutes from './routes/healthRoutes'
@@ -76,6 +77,7 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
   app.register(categoriesRoutesV3, { prefix: '/api/v3' })
   app.register(threadRoutesV3, { prefix: '/api/v3' })
   // V4 - Simplified thread content format
+  app.register(categoriesRoutesV4, { prefix: '/api/v4' })
   app.register(threadRoutesV4, { prefix: '/api/v4' })
   app.register(healthRoutes)
 

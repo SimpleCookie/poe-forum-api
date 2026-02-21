@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  GetApiCategories200,
+  GetApiCategoryCategory200,
   GetApiCategoryCategoryParams
 } from '../api.schemas';
 
@@ -14,7 +16,7 @@ import type {
  * Get all available forum categories
  */
 export type getApiCategoriesResponse200 = {
-  data: void
+  data: GetApiCategories200
   status: 200
 }
 
@@ -55,7 +57,7 @@ export const getApiCategories = async ( options?: RequestInit): Promise<getApiCa
  * Get threads from a category
  */
 export type getApiCategoryCategoryResponse200 = {
-  data: void
+  data: GetApiCategoryCategory200
   status: 200
 }
 
@@ -66,7 +68,7 @@ export type getApiCategoryCategoryResponseSuccess = (getApiCategoryCategoryRespo
 
 export type getApiCategoryCategoryResponse = (getApiCategoryCategoryResponseSuccess)
 
-export const getGetApiCategoryCategoryUrl = (category: string,
+export const getGetApiCategoryCategoryUrl = (category: 'news' | 'dev-manifesto' | 'patch-notes' | '2211' | '2212' | '2213',
     params?: GetApiCategoryCategoryParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -82,7 +84,7 @@ export const getGetApiCategoryCategoryUrl = (category: string,
   return stringifiedParams.length > 0 ? `http://localhost:3000/api/category/${category}?${stringifiedParams}` : `http://localhost:3000/api/category/${category}`
 }
 
-export const getApiCategoryCategory = async (category: string,
+export const getApiCategoryCategory = async (category: 'news' | 'dev-manifesto' | 'patch-notes' | '2211' | '2212' | '2213',
     params?: GetApiCategoryCategoryParams, options?: RequestInit): Promise<getApiCategoryCategoryResponse> => {
   
   const res = await fetch(getGetApiCategoryCategoryUrl(category,params),

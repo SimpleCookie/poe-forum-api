@@ -156,7 +156,7 @@ describe('pagination', () => {
       expect(result.pageSize).toBe(20)
     })
 
-    it('should correctly identify hasNext based on Next link presence', () => {
+    it('should correctly identify hasNext based on page and totalPages', () => {
       const htmlWithNext = `
         <div class="pagination">
           <a class="current" href="/forum/view-thread/123/page/1">1</a>
@@ -203,6 +203,59 @@ describe('pagination', () => {
 
       const resultWithoutPrevious = extractPagination(htmlWithoutPrevious, 20)
       expect(resultWithoutPrevious.hasPrevious).toBe(false)
+    })
+
+    it('should set hasPrevious true on page > 1 even when Previous link is missing', () => {
+      const html = `
+        <div class="pagination">
+          <a href="/forum/view-thread/123/page/1">1</a>
+          <a href="/forum/view-thread/123/page/24">24</a>
+          <a href="/forum/view-thread/123/page/51">51</a>
+          <a class="current" href="/forum/view-thread/123/page/52">52</a>
+        </div>
+      `
+
+      const result = extractPagination(html, 20)
+
+      expect(result.page).toBe(52)
+      expect(result.totalPages).toBe(52)
+      expect(result.hasPrevious).toBe(true)
+      expect(result.hasNext).toBe(false)
+    })
+
+    it('should set hasNext true on page < totalPages even when Next link is missing', () => {
+      const html = `
+        <div class="pagination">
+          <a href="/forum/view-thread/123/page/1">1</a>
+          <a class="current" href="/forum/view-thread/123/page/24">24</a>
+          <a href="/forum/view-thread/123/page/52">52</a>
+        </div>
+      `
+
+      const result = extractPagination(html, 20)
+
+      expect(result.page).toBe(24)
+      expect(result.totalPages).toBe(52)
+      expect(result.hasNext).toBe(true)
+      expect(result.hasPrevious).toBe(true)
+    })
+
+    it('should set hasNext false on last page even when Next link exists', () => {
+      const html = `
+        <div class="pagination">
+          <a href="/forum/view-thread/123/page/1">Previous</a>
+          <a href="/forum/view-thread/123/page/1">1</a>
+          <a class="current" href="/forum/view-thread/123/page/52">52</a>
+          <a href="/forum/view-thread/123/page/53">Next</a>
+        </div>
+      `
+
+      const result = extractPagination(html, 20)
+
+      expect(result.page).toBe(52)
+      expect(result.totalPages).toBe(52)
+      expect(result.hasNext).toBe(false)
+      expect(result.hasPrevious).toBe(true)
     })
   })
 })

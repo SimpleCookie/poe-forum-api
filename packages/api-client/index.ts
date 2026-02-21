@@ -42,7 +42,7 @@ export const v3 = {
 /**
  * V4 API - Simplified content format
  * threads return posts with a single content field
- * categories are unversioned
+ * categories and threads are both under /api/v4/
  */
 export const v4 = {
   getThread: getThreadV4,

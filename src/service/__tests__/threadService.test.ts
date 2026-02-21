@@ -29,7 +29,7 @@ function makeThreadPage(overrides?: Partial<ThreadPage>): ThreadPage {
 
 class InMemoryThreadCacheRepository implements ThreadCacheRepository {
   private readonly entry: CachedThreadPage | null
-  upsertThreadPage = jest.fn(async () => {})
+  upsertThreadPage = jest.fn(async () => { })
 
   constructor(entry: CachedThreadPage | null) {
     this.entry = entry
@@ -41,7 +41,7 @@ class InMemoryThreadCacheRepository implements ThreadCacheRepository {
 }
 
 class FailingReadThreadCacheRepository implements ThreadCacheRepository {
-  upsertThreadPage = jest.fn(async () => {})
+  upsertThreadPage = jest.fn(async () => { })
 
   async getThreadPage(): Promise<CachedThreadPage | null> {
     throw new Error('db read failed')

@@ -8,6 +8,14 @@ import type { getApiCategoriesResponse200, getApiCategoryCategoryResponse200 } f
 import type { GetApiCategoryCategoryParams } from './generated/api.schemas'
 import type { ThreadApiResponseV1, ThreadApiResponseV2, ThreadApiResponseV4 } from './types'
 
+function parseResponseBody<T>(body: string | null): T {
+    if (!body) {
+        return {} as T
+    }
+
+    return JSON.parse(body) as T
+}
+
 // Categories API Wrappers
 
 export const getCategoriesV1 = async (options?: RequestInit): Promise<getApiCategoriesResponse200 & { headers: Headers }> => {
@@ -20,8 +28,8 @@ export const getCategoriesV1 = async (options?: RequestInit): Promise<getApiCate
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
-    return { data, status: res.status, headers: res.headers } as any
+    const data = parseResponseBody<getApiCategoriesResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoriesResponse200 & { headers: Headers }
 }
 
 export const getCategoryV1 = async (
@@ -39,8 +47,8 @@ export const getCategoryV1 = async (
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
-    return { data, status: res.status, headers: res.headers } as any
+    const data = parseResponseBody<getApiCategoryCategoryResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoryCategoryResponse200 & { headers: Headers }
 }
 
 // Threads API Wrappers
@@ -64,7 +72,7 @@ export const getThreadV1 = async (
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
+    const data = parseResponseBody<ThreadApiResponseV1['data']>(body)
     return { data, status: res.status, headers: res.headers } as ThreadApiResponseV1
 }
 
@@ -86,7 +94,7 @@ export const getThreadV1Deprecated = async (
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
+    const data = parseResponseBody<ThreadApiResponseV1['data']>(body)
     return { data, status: res.status, headers: res.headers } as ThreadApiResponseV1
 }
 
@@ -109,7 +117,7 @@ export const getThreadV2 = async (
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
+    const data = parseResponseBody<ThreadApiResponseV2['data']>(body)
     return { data, status: res.status, headers: res.headers } as ThreadApiResponseV2
 }
 
@@ -133,7 +141,7 @@ export const getThreadV3 = async (
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
+    const data = parseResponseBody<ThreadApiResponseV2['data']>(body)
     return { data, status: res.status, headers: res.headers } as ThreadApiResponseV2
 }
 
@@ -155,7 +163,7 @@ export const getThreadV4 = async (
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
+    const data = parseResponseBody<ThreadApiResponseV4['data']>(body)
     return { data, status: res.status, headers: res.headers } as ThreadApiResponseV4
 }
 
@@ -173,8 +181,8 @@ export const getCategoriesV3 = async (options?: RequestInit): Promise<getApiCate
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
-    return { data, status: res.status, headers: res.headers } as any
+    const data = parseResponseBody<getApiCategoriesResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoriesResponse200 & { headers: Headers }
 }
 
 /**
@@ -196,28 +204,47 @@ export const getCategoryV3 = async (
     })
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-    const data: any = body ? JSON.parse(body) : {}
-    return { data, status: res.status, headers: res.headers } as any
+    const data = parseResponseBody<getApiCategoryCategoryResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoryCategoryResponse200 & { headers: Headers }
 }
 
 /**
  * Get categories using V4 API surface
- * Currently backed by unversioned categories endpoint
  */
 export const getCategoriesV4 = async (options?: RequestInit): Promise<getApiCategoriesResponse200 & { headers: Headers }> => {
-    return getCategoriesV1(options)
+    const baseUrl = getBaseUrl()
+    const url = `${baseUrl}/api/v4/categories`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data = parseResponseBody<getApiCategoriesResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoriesResponse200 & { headers: Headers }
 }
 
 /**
  * Get category using V4 API surface
- * Currently backed by unversioned categories endpoint
  */
 export const getCategoryV4 = async (
     category: string,
     params?: GetApiCategoryCategoryParams,
     options?: RequestInit
 ): Promise<getApiCategoryCategoryResponse200 & { headers: Headers }> => {
-    return getCategoryV1(category, params, options)
+    const baseUrl = getBaseUrl()
+    const queryStr = params?.page ? `?page=${params.page}` : ''
+    const url = `${baseUrl}/api/v4/category/${category}${queryStr}`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data = parseResponseBody<getApiCategoryCategoryResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoryCategoryResponse200 & { headers: Headers }
 }
 
 // Re-export types

@@ -5,10 +5,325 @@
  * API for browsing Path of Exile forum on mobile
  * OpenAPI spec version: 1.0.0
  */
+export type GetApiCategories200Poe1ItemSlug = typeof GetApiCategories200Poe1ItemSlug[keyof typeof GetApiCategories200Poe1ItemSlug];
+
+
+export const GetApiCategories200Poe1ItemSlug = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiCategories200Poe1Item = {
+  name: string;
+  slug: GetApiCategories200Poe1ItemSlug;
+  endpoint: string;
+  sourceUrl: string;
+};
+
+export type GetApiCategories200Poe2ItemSlug = typeof GetApiCategories200Poe2ItemSlug[keyof typeof GetApiCategories200Poe2ItemSlug];
+
+
+export const GetApiCategories200Poe2ItemSlug = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiCategories200Poe2Item = {
+  name: string;
+  slug: GetApiCategories200Poe2ItemSlug;
+  endpoint: string;
+  sourceUrl: string;
+};
+
+export type GetApiCategories200 = {
+  poe1: GetApiCategories200Poe1Item[];
+  poe2: GetApiCategories200Poe2Item[];
+};
+
 export type GetApiCategoryCategoryParams = {
 /**
  * Page number (default: 1)
  */
 page?: string;
+};
+
+export type GetApiCategoryCategory200Category = typeof GetApiCategoryCategory200Category[keyof typeof GetApiCategoryCategory200Category];
+
+
+export const GetApiCategoryCategory200Category = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiCategoryCategory200ThreadsItem = {
+  threadId: string;
+  title: string;
+  replies: number;
+};
+
+export type GetApiCategoryCategory200 = {
+  category: GetApiCategoryCategory200Category;
+  page: number;
+  threads: GetApiCategoryCategory200ThreadsItem[];
+};
+
+export type GetApiV3Categories200Poe1ItemSlug = typeof GetApiV3Categories200Poe1ItemSlug[keyof typeof GetApiV3Categories200Poe1ItemSlug];
+
+
+export const GetApiV3Categories200Poe1ItemSlug = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiV3Categories200Poe1Item = {
+  name: string;
+  slug: GetApiV3Categories200Poe1ItemSlug;
+  endpoint: string;
+  sourceUrl: string;
+};
+
+export type GetApiV3Categories200Poe2ItemSlug = typeof GetApiV3Categories200Poe2ItemSlug[keyof typeof GetApiV3Categories200Poe2ItemSlug];
+
+
+export const GetApiV3Categories200Poe2ItemSlug = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiV3Categories200Poe2Item = {
+  name: string;
+  slug: GetApiV3Categories200Poe2ItemSlug;
+  endpoint: string;
+  sourceUrl: string;
+};
+
+export type GetApiV3Categories200 = {
+  poe1: GetApiV3Categories200Poe1Item[];
+  poe2: GetApiV3Categories200Poe2Item[];
+};
+
+export type GetApiV3CategoryCategoryParams = {
+/**
+ * Page number (default: 1)
+ */
+page?: string;
+};
+
+export type GetApiV3CategoryCategory200Category = typeof GetApiV3CategoryCategory200Category[keyof typeof GetApiV3CategoryCategory200Category];
+
+
+export const GetApiV3CategoryCategory200Category = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiV3CategoryCategory200ThreadsItem = {
+  threadId: string;
+  title: string;
+  replies: number;
+};
+
+export type GetApiV3CategoryCategory200 = {
+  category: GetApiV3CategoryCategory200Category;
+  page: number;
+  threads: GetApiV3CategoryCategory200ThreadsItem[];
+};
+
+export type GetApiV3ThreadIdParams = {
+/**
+ * Page number (default: 1)
+ */
+page?: string;
+};
+
+export type GetApiV3ThreadId200PostsItem = {
+  /** Post ID */
+  postId: string;
+  /** Thread ID */
+  threadId: string;
+  /** Author of the post */
+  author: string;
+  /** ISO date when post was created */
+  createdAt: string;
+  /** Plain text content (cleaned, for fallback or search) */
+  contentText: string;
+  /** HTML content with formatting, blockquotes, and embedded images. Images appear inline at their original position. IMPORTANT: Sanitize with DOMPurify or similar before rendering to prevent XSS attacks. */
+  contentHtml: string;
+  /** Position on the page (0-indexed) */
+  indexOnPage: number;
+};
+
+/**
+ * Pagination metadata
+ */
+export type GetApiV3ThreadId200Pagination = {
+  /** Current page number (1-indexed) */
+  page: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** Whether there is a next page */
+  hasNext: boolean;
+  /** Whether there is a previous page */
+  hasPrevious: boolean;
+  /** Number of items on this page */
+  pageSize: number;
+};
+
+export type GetApiV3ThreadId200 = {
+  /** Thread ID */
+  threadId: string;
+  /** Thread title (only on first page) */
+  title?: string;
+  /** List of posts on this page */
+  posts: GetApiV3ThreadId200PostsItem[];
+  /** Pagination metadata */
+  pagination: GetApiV3ThreadId200Pagination;
+};
+
+export type GetApiV4Categories200Poe1ItemSlug = typeof GetApiV4Categories200Poe1ItemSlug[keyof typeof GetApiV4Categories200Poe1ItemSlug];
+
+
+export const GetApiV4Categories200Poe1ItemSlug = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiV4Categories200Poe1Item = {
+  name: string;
+  slug: GetApiV4Categories200Poe1ItemSlug;
+  endpoint: string;
+  sourceUrl: string;
+};
+
+export type GetApiV4Categories200Poe2ItemSlug = typeof GetApiV4Categories200Poe2ItemSlug[keyof typeof GetApiV4Categories200Poe2ItemSlug];
+
+
+export const GetApiV4Categories200Poe2ItemSlug = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiV4Categories200Poe2Item = {
+  name: string;
+  slug: GetApiV4Categories200Poe2ItemSlug;
+  endpoint: string;
+  sourceUrl: string;
+};
+
+export type GetApiV4Categories200 = {
+  poe1: GetApiV4Categories200Poe1Item[];
+  poe2: GetApiV4Categories200Poe2Item[];
+};
+
+export type GetApiV4CategoryCategoryParams = {
+/**
+ * Page number (default: 1)
+ */
+page?: string;
+};
+
+export type GetApiV4CategoryCategory200Category = typeof GetApiV4CategoryCategory200Category[keyof typeof GetApiV4CategoryCategory200Category];
+
+
+export const GetApiV4CategoryCategory200Category = {
+  news: 'news',
+  'dev-manifesto': 'dev-manifesto',
+  'patch-notes': 'patch-notes',
+  NUMBER_2211: '2211',
+  NUMBER_2212: '2212',
+  NUMBER_2213: '2213',
+} as const;
+
+export type GetApiV4CategoryCategory200ThreadsItem = {
+  threadId: string;
+  title: string;
+  replies: number;
+};
+
+export type GetApiV4CategoryCategory200 = {
+  category: GetApiV4CategoryCategory200Category;
+  page: number;
+  threads: GetApiV4CategoryCategory200ThreadsItem[];
+};
+
+export type GetApiV4ThreadIdParams = {
+/**
+ * Page number (default: 1)
+ */
+page?: string;
+};
+
+export type GetApiV4ThreadId200PostsItem = {
+  /** Post ID */
+  postId: string;
+  /** Thread ID */
+  threadId: string;
+  /** Author of the post */
+  author: string;
+  /** ISO date when post was created */
+  createdAt: string;
+  /** Post content with simple quote markup like [quote="Author"]...[/quote]. */
+  content: string;
+  /** Position on the page (0-indexed) */
+  indexOnPage: number;
+};
+
+/**
+ * Pagination metadata
+ */
+export type GetApiV4ThreadId200Pagination = {
+  /** Current page number (1-indexed) */
+  page: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** Whether there is a next page */
+  hasNext: boolean;
+  /** Whether there is a previous page */
+  hasPrevious: boolean;
+  /** Number of items on this page */
+  pageSize: number;
+};
+
+export type GetApiV4ThreadId200 = {
+  /** Thread ID */
+  threadId: string;
+  /** Thread title (only on first page) */
+  title?: string;
+  /** List of posts on this page */
+  posts: GetApiV4ThreadId200PostsItem[];
+  /** Pagination metadata */
+  pagination: GetApiV4ThreadId200Pagination;
 };
 

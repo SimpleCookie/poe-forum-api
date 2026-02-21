@@ -3,6 +3,7 @@ import { threadRoutes } from '../routes/threadRoutes'
 import { threadRoutesV1 } from '../routes/v1/threadRoutesV1'
 import { threadRoutesV2 } from '../routes/v2/threadRoutesV2'
 import { threadRoutesV4 } from '../routes/v4/threadRoutesV4'
+import { categoriesRoutesV4 } from '../routes/v4/categoriesRoutesV4'
 import { ThreadService } from '../../service/threadService'
 import axios from 'axios'
 
@@ -15,17 +16,75 @@ const mockLastPageHTML = `<table class="forumTable"><tr><td colspan="100">Header
 
 const mockQuotedThreadHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content"><blockquote class=""><span class="quote">"</span><div class="top"><cite><span class="profile-link"><a href="/account/view-profile/TwistedTrip-5344">TwistedTrip#5344</a></span> wrote:</cite></div><div class="bot">Quoted line one.<br>Quoted line two.<div class="clear"></div></div></blockquote><br>Reply after quote.</div></td><td class="posted-by"><div class="profile-link"><a>Simple2012#6247</a></div><div class="post_date">2026-02-18 02:39:30</div></td><td><div class="post_anchor" id="p26572904"></div></td></tr></table><div class="pagination"><a class="current" href="/forum/view-thread/3912208/page/1">1</a></div>`
 
+const mockCategoryHTML = `<table><tbody><tr><td class="thread"><div class="thread_title"><div class="title"><a href="/forum/view-thread/3912208">2.0.0 Released</a></div></div></td><td class="views"><span>1250</span></td></tr></tbody></table><div class="pagination"><a class="current" href="/forum/view-forum/general/page/1">1</a><a href="/forum/view-forum/general/page/2">2</a><a href="/forum/view-forum/general/page/2">Next</a></div>`
+
 describe('Thread Routes Integration Tests', () => {
   let app: ReturnType<typeof fastify>
 
   beforeEach(() => {
-    mockedAxios.get.mockClear()
+    mockedAxios.get.mockReset()
   })
 
   afterEach(async () => {
     if (app) {
       await app.close()
     }
+  })
+
+  describe('V4 Routes (Latest version full surface)', () => {
+    beforeEach(async () => {
+      app = fastify()
+      await app.register(categoriesRoutesV4)
+      await app.register(threadRoutesV4)
+    })
+
+    it('✓ GET /api/v4/categories returns V4 category endpoints', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/categories',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+      expect(body).toHaveProperty('poe1')
+      expect(Array.isArray(body.poe1)).toBe(true)
+      expect(body.poe1[0].endpoint).toMatch(/^\/api\/v4\/category\//)
+    })
+
+    it('✓ GET /api/v4/category/:category returns category threads', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockCategoryHTML })
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/category/news?page=1',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+      expect(body).toHaveProperty('category', 'news')
+      expect(body).toHaveProperty('threads')
+      expect(Array.isArray(body.threads)).toBe(true)
+      expect(body.threads.length).toBeGreaterThan(0)
+    })
+
+    it('✓ GET /api/v4/thread/:id returns posts with single content field', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/thread/123',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+
+      expect(body).toHaveProperty('threadId', '123')
+      expect(body).toHaveProperty('posts')
+      expect(body).toHaveProperty('pagination')
+      expect(body.posts[0]).toHaveProperty('content')
+      expect(body.posts[0]).not.toHaveProperty('contentText')
+      expect(body.posts[0]).not.toHaveProperty('contentHtml')
+    })
   })
 
   describe('V1 Routes (Backwards Compatibility)', () => {

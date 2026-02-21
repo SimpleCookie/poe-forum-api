@@ -33,10 +33,9 @@ export function extractPagination(html: string, pageSize: number): Pageable {
   // Find the highest page number (total pages)
   const totalPages = pageLinks.length > 0 ? Math.max(...pageLinks) : currentPage
 
-  // Check for next/previous links
-  const links = $('div.pagination a').toArray()
-  const hasNext = links.some((link) => $(link).text().trim() === 'Next')
-  const hasPrevious = links.some((link) => $(link).text().trim() === 'Previous')
+  // Derive navigation from page numbers to avoid label/markup variance (e.g. localized or missing Next/Previous links)
+  const hasNext = currentPage < totalPages
+  const hasPrevious = currentPage > 1
 
   return {
     page: currentPage,
