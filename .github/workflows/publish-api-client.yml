@@ -1,0 +1,104 @@
+name: Publish API Client
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - packages/api-client/package.json
+      - packages/api-client/**
+      - src/server/**
+      - src/generated/**
+      - swagger.json
+      - scripts/generate-api.js
+      - orval.config.ts
+      - package.json
+      - package-lock.json
+  workflow_dispatch:
+
+jobs:
+  test-build-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build API
+        run: npm run build
+
+      - name: Generate API artifacts
+        run: |
+          node scripts/dump-swagger.js
+          npm run generate:api
+
+      - name: Build API client
+        run: npm run build:client
+
+      - name: Detect version change
+        id: version_check
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(node -p "require('./packages/api-client/package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+
+          PREVIOUS_VERSION=""
+          if git cat-file -e HEAD^:packages/api-client/package.json 2>/dev/null; then
+            PREVIOUS_VERSION=$(git show HEAD^:packages/api-client/package.json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).version)}catch{process.exit(1)}})")
+          fi
+
+          echo "previous_version=$PREVIOUS_VERSION" >> "$GITHUB_OUTPUT"
+
+          if [ "$CURRENT_VERSION" = "$PREVIOUS_VERSION" ]; then
+            echo "version_changed=false" >> "$GITHUB_OUTPUT"
+            echo "Version unchanged ($CURRENT_VERSION), skipping publish."
+          else
+            echo "version_changed=true" >> "$GITHUB_OUTPUT"
+            echo "Version changed: $PREVIOUS_VERSION -> $CURRENT_VERSION"
+          fi
+
+      - name: Check npm for existing version
+        id: npm_check
+        if: steps.version_check.outputs.version_changed == 'true'
+        shell: bash
+        run: |
+          VERSION="${{ steps.version_check.outputs.current_version }}"
+          if npm view @devgroup.se/poe-forum-api@"$VERSION" version >/dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "Version $VERSION is already published, skipping."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+            echo "Version $VERSION is not published yet."
+          fi
+
+      - name: Publish API client
+        if: steps.version_check.outputs.version_changed == 'true' && steps.npm_check.outputs.already_published == 'false'
+        working-directory: packages/api-client
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+
+      - name: Publish summary
+        if: always()
+        run: |
+          echo "Current version: ${{ steps.version_check.outputs.current_version }}"
+          echo "Previous version: ${{ steps.version_check.outputs.previous_version }}"
+          echo "Version changed: ${{ steps.version_check.outputs.version_changed }}"
+          echo "Already published: ${{ steps.npm_check.outputs.already_published }}"

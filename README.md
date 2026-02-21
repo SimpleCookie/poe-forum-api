@@ -212,6 +212,28 @@ const threads = await getCategory({
 })
 ```
 
+### Automated publish (GitHub Actions)
+
+This repo includes [publish-api-client.yml](.github/workflows/publish-api-client.yml) to publish `@devgroup.se/poe-forum-api` automatically on pushes to `main`.
+
+Publish only runs when all of these pass:
+- `npm test`
+- `npm run build`
+- `node scripts/dump-swagger.js`
+- `npm run generate:api`
+- `npm run build:client`
+
+Publish is also skipped unless:
+- `packages/api-client/package.json` version changed vs previous commit
+- that exact npm version is not already published
+
+Required secret in GitHub repository settings:
+- `NPM_TOKEN` (token with publish access for `@devgroup.se`)
+
+Local token handling:
+- Keep `.npmrc` committed with `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`
+- Set `NPM_TOKEN` in your shell (or CI secrets), never commit raw tokens
+
 ## Project Structure
 
 ```
