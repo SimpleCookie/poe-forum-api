@@ -18,6 +18,18 @@ export interface Post {
 }
 
 /**
+ * Post for V4 API format (single content field)
+ */
+export interface PostV4 {
+  postId: string
+  threadId: string
+  author: string
+  createdAt: string
+  content: string
+  indexOnPage: number
+}
+
+/**
  * Post for V1 API format (includes page field)
  */
 export interface PostV1 extends Post {
@@ -43,6 +55,16 @@ export interface ThreadResponseV2 {
   threadId: string
   title?: string
   posts: Post[]
+  pagination: Pageable
+}
+
+/**
+ * Thread response for V4 API (single content field on posts)
+ */
+export interface ThreadResponseV4 {
+  threadId: string
+  title?: string
+  posts: PostV4[]
   pagination: Pageable
 }
 
@@ -78,3 +100,4 @@ export interface ApiResponse<T> {
 export type ThreadApiResponse = ApiResponse<ThreadResponseV1>
 export type ThreadApiResponseV1 = ApiResponse<ThreadResponseV1>
 export type ThreadApiResponseV2 = ApiResponse<ThreadResponseV2>
+export type ThreadApiResponseV4 = ApiResponse<ThreadResponseV4>

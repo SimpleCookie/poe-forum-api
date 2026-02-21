@@ -6,11 +6,11 @@
 import { getBaseUrl } from './config'
 import type { getApiCategoriesResponse200, getApiCategoryCategoryResponse200 } from './generated/categories/categories'
 import type { GetApiCategoryCategoryParams } from './generated/api.schemas'
-import type { ThreadApiResponse, ThreadApiResponseV1, ThreadApiResponseV2 } from './types'
+import type { ThreadApiResponseV1, ThreadApiResponseV2, ThreadApiResponseV4 } from './types'
 
 // Categories API Wrappers
 
-export const getCategories = async (options?: RequestInit): Promise<getApiCategoriesResponse200 & { headers: Headers }> => {
+export const getCategoriesV1 = async (options?: RequestInit): Promise<getApiCategoriesResponse200 & { headers: Headers }> => {
     const baseUrl = getBaseUrl()
     const url = `${baseUrl}/api/categories`
 
@@ -24,7 +24,7 @@ export const getCategories = async (options?: RequestInit): Promise<getApiCatego
     return { data, status: res.status, headers: res.headers } as any
 }
 
-export const getCategory = async (
+export const getCategoryV1 = async (
     category: string,
     params?: GetApiCategoryCategoryParams,
     options?: RequestInit
@@ -49,11 +49,11 @@ export const getCategory = async (
  * Get thread using unversioned endpoint (defaults to V1 format for backwards compatibility)
  * Returns V1 format with page and nextPageUrl
  */
-export const getThread = async (
+export const getThreadV1 = async (
     id: string,
     page?: string,
     options?: RequestInit
-): Promise<ThreadApiResponse> => {
+): Promise<ThreadApiResponseV1> => {
     const baseUrl = getBaseUrl()
     const queryStr = page ? `?page=${page}` : ''
     const url = `${baseUrl}/api/thread/${id}${queryStr}`
@@ -65,14 +65,13 @@ export const getThread = async (
 
     const body = [204, 205, 304].includes(res.status) ? null : await res.text()
     const data: any = body ? JSON.parse(body) : {}
-    return { data, status: res.status, headers: res.headers } as ThreadApiResponse
+    return { data, status: res.status, headers: res.headers } as ThreadApiResponseV1
 }
 
 /**
- * Get thread using V1 API (deprecated format with page on posts and nextPageUrl)
- * Kept for explicit v1 control
+ * Get thread using explicit V1 API path (deprecated)
  */
-export const getThreadV1 = async (
+export const getThreadV1Deprecated = async (
     id: string,
     page?: string,
     options?: RequestInit
@@ -139,6 +138,28 @@ export const getThreadV3 = async (
 }
 
 /**
+ * Get thread using V4 API (single content field on posts)
+ */
+export const getThreadV4 = async (
+    id: string,
+    page?: string,
+    options?: RequestInit
+): Promise<ThreadApiResponseV4> => {
+    const baseUrl = getBaseUrl()
+    const queryStr = page ? `?page=${page}` : ''
+    const url = `${baseUrl}/api/v4/thread/${id}${queryStr}`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data: any = body ? JSON.parse(body) : {}
+    return { data, status: res.status, headers: res.headers } as ThreadApiResponseV4
+}
+
+/**
  * Get categories using V3 API (unified)
  * All endpoints under /api/v3/
  */
@@ -179,6 +200,26 @@ export const getCategoryV3 = async (
     return { data, status: res.status, headers: res.headers } as any
 }
 
+/**
+ * Get categories using V4 API surface
+ * Currently backed by unversioned categories endpoint
+ */
+export const getCategoriesV4 = async (options?: RequestInit): Promise<getApiCategoriesResponse200 & { headers: Headers }> => {
+    return getCategoriesV1(options)
+}
+
+/**
+ * Get category using V4 API surface
+ * Currently backed by unversioned categories endpoint
+ */
+export const getCategoryV4 = async (
+    category: string,
+    params?: GetApiCategoryCategoryParams,
+    options?: RequestInit
+): Promise<getApiCategoryCategoryResponse200 & { headers: Headers }> => {
+    return getCategoryV1(category, params, options)
+}
+
 // Re-export types
 export type { getApiCategoriesResponse200, getApiCategoryCategoryResponse200 } from './generated/categories/categories'
-export type { ThreadApiResponse, ThreadApiResponseV1, ThreadApiResponseV2, ThreadResponseV1, ThreadResponseV2, Post, PostV1, ApiResponse } from './types'
+export type { ThreadApiResponse, ThreadApiResponseV1, ThreadApiResponseV2, ThreadApiResponseV4, ThreadResponseV1, ThreadResponseV2, ThreadResponseV4, Post, PostV1, PostV4, ApiResponse } from './types'

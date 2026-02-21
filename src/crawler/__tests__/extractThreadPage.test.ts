@@ -208,6 +208,7 @@ describe('extractThreadPage', () => {
     expect(result.posts).toHaveLength(1)
     expect(result.posts[0].author).toBe('Unknown')
   })
+
   it('should extract thread title on first page only', () => {
     const result = extractThreadPage(mockThreadPageHtml, {
       threadId: '123',

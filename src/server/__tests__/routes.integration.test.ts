@@ -2,6 +2,7 @@ import fastify from 'fastify'
 import { threadRoutes } from '../routes/threadRoutes'
 import { threadRoutesV1 } from '../routes/v1/threadRoutesV1'
 import { threadRoutesV2 } from '../routes/v2/threadRoutesV2'
+import { threadRoutesV4 } from '../routes/v4/threadRoutesV4'
 import { ThreadService } from '../../service/threadService'
 import axios from 'axios'
 
@@ -11,6 +12,8 @@ const mockedAxios = axios as jest.Mocked<typeof axios>
 const mockThreadHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content">Post 1</div></td><td class="posted-by"><div class="profile-link"><a>User1</a></div><div class="post_date">2024-02-18 10:00:00</div></td><td><div class="post_anchor" id="p1"></div></td></tr><tr><td class="content-container"><div class="content">Post 2</div></td><td class="posted-by"><div class="profile-link"><a>User2</a></div><div class="post_date">2024-02-18 10:05:00</div></td><td><div class="post_anchor" id="p2"></div></td></tr></table><div class="pagination"><a class="current" href="/forum/view-thread/123/page/1">1</a><a href="/forum/view-thread/123/page/2">2</a><a href="/forum/view-thread/123/page/3">3</a><a href="/forum/view-thread/123/page/2">Next</a></div>`
 
 const mockLastPageHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content">Last Post</div></td><td class="posted-by"><div class="profile-link"><a>User3</a></div><div class="post_date">2024-02-18 11:00:00</div></td><td><div class="post_anchor" id="p5"></div></td></tr></table><div class="pagination"><a href="/forum/view-thread/123/page/2">Previous</a><a href="/forum/view-thread/123/page/1">1</a><a href="/forum/view-thread/123/page/2">2</a><a class="current" href="/forum/view-thread/123/page/3">3</a></div>`
+
+const mockQuotedThreadHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content"><blockquote class=""><span class="quote">"</span><div class="top"><cite><span class="profile-link"><a href="/account/view-profile/TwistedTrip-5344">TwistedTrip#5344</a></span> wrote:</cite></div><div class="bot">Quoted line one.<br>Quoted line two.<div class="clear"></div></div></blockquote><br>Reply after quote.</div></td><td class="posted-by"><div class="profile-link"><a>Simple2012#6247</a></div><div class="post_date">2026-02-18 02:39:30</div></td><td><div class="post_anchor" id="p26572904"></div></td></tr></table><div class="pagination"><a class="current" href="/forum/view-thread/3912208/page/1">1</a></div>`
 
 describe('Thread Routes Integration Tests', () => {
   let app: ReturnType<typeof fastify>
@@ -287,6 +290,46 @@ describe('Thread Routes Integration Tests', () => {
       expect(response.statusCode).toBe(400)
       expect(mockedAxios.get).not.toHaveBeenCalled()
       console.log('✓ V2 rejects unreasonably high page numbers')
+    })
+  })
+
+  describe('V4 Routes (Simplified content)', () => {
+    beforeEach(async () => {
+      app = fastify()
+      await app.register(threadRoutesV4)
+    })
+
+    it('✓ GET /api/v4/thread/:id returns posts with single content field', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockThreadHTML })
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/thread/123',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+
+      expect(body).toHaveProperty('threadId', '123')
+      expect(body).toHaveProperty('posts')
+      expect(body).toHaveProperty('pagination')
+      expect(body.posts[0]).toHaveProperty('content')
+      expect(body.posts[0]).not.toHaveProperty('contentText')
+      expect(body.posts[0]).not.toHaveProperty('contentHtml')
+    })
+
+    it('✓ GET /api/v4/thread/:id converts blockquote HTML to quote markup', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockQuotedThreadHTML })
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/thread/3912208',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+      expect(body.posts[0].content).toContain('[quote="TwistedTrip#5344"]Quoted line one.<br/>Quoted line two.[/quote]')
+      expect(body.posts[0].content).toContain('Reply after quote.')
     })
   })
 
