@@ -35,7 +35,21 @@ export async function buildApp(opts?: { disableRateLimit?: boolean }): Promise<F
   await app.register(helmet)
 
   // CORS - configured via environment
-  const corsOrigin = env.IS_DEVELOPMENT ? true : env.CORS_ORIGIN
+  const allowedOrigins = env.CORS_ORIGIN
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0)
+
+  const corsOrigin = env.IS_DEVELOPMENT
+    ? true
+    : (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => {
+      if (!origin) {
+        cb(null, true)
+        return
+      }
+
+      cb(null, allowedOrigins.includes(origin))
+    }
   await app.register(cors, {
     origin: corsOrigin,
     credentials: true,

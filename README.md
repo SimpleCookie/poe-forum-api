@@ -300,6 +300,8 @@ HOST=0.0.0.0
 
 # CORS Configuration (CRITICAL: change to your domain)
 CORS_ORIGIN=https://yourdomain.com
+# Or multiple origins (comma-separated):
+# CORS_ORIGIN=https://poe-forum.devgroup.se,https://poe-forum-api.devgroup.se
 
 # Logging
 LOG_LEVEL=info
@@ -357,7 +359,7 @@ curl http://localhost:3000/health
 ### Production Checklist
 
 - [ ] **Environment Variables**: Copy and configure `.env` file
-- [ ] **CORS Origin**: Update `CORS_ORIGIN` to your frontend domain
+- [ ] **CORS Origin**: Update `CORS_ORIGIN` to your frontend domain (or comma-separated allowed origins)
 - [ ] **Logging**: Set `LOG_LEVEL=info` or `warn` for production
 - [ ] **Rate Limiting**: Adjust `RATE_LIMIT_MAX` based on expected load
 - [ ] **HTTPS/SSL**: Configure reverse proxy (Nginx, CloudFlare, etc)
