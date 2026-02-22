@@ -20,6 +20,8 @@ const mockQuotedThreadHTML = `<table class="forumTable"><tr><td colspan="100">He
 
 const mockStructuredThreadHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content">Launch trailer below:<br><iframe src="//www.youtube.com/embed/Fch-pZe1_kw"></iframe><br><img src="https://web.poecdn.com/public/news/sample.jpg" alt="Sample image"></div></td><td class="posted-by"><div class="profile-link"><a>GGG_Staff</a></div><div class="post_date">2026-02-18 10:00:00</div></td><td><div class="post_anchor" id="p500"></div></td></tr></table><div class="pagination"><a class="current" href="/forum/view-thread/123/page/1">1</a></div>`
 
+const mockLineBreakThreadHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content">First line<br>Second line<br><br>Third line</div></td><td class="posted-by"><div class="profile-link"><a>UserLineBreaks</a></div><div class="post_date">2026-02-18 10:10:00</div></td><td><div class="post_anchor" id="p501"></div></td></tr></table><div class="pagination"><a class="current" href="/forum/view-thread/123/page/1">1</a></div>`
+
 const mockCategoryHTML = `<table><tbody><tr><td class="thread"><div class="thread_title"><div class="title"><a href="/forum/view-thread/3912208">2.0.0 Released</a></div></div></td><td class="views"><span>1250</span></td></tr></tbody></table><div class="pagination"><a class="current" href="/forum/view-forum/general/page/1">1</a><a href="/forum/view-forum/general/page/2">2</a><a href="/forum/view-forum/general/page/2">Next</a></div>`
 
 describe('Thread Routes Integration Tests', () => {
@@ -463,6 +465,24 @@ describe('Thread Routes Integration Tests', () => {
         type: 'image',
         url: 'https://web.poecdn.com/public/news/sample.jpg',
       })
+    })
+
+    it('✓ GET /api/v5/thread/:id preserves line breaks in paragraph blocks', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockLineBreakThreadHTML })
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/thread/123',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+      const paragraphBlock = body.posts[0].content.blocks.find(
+        (block: { type: string }) => block.type === 'paragraph'
+      ) as { type: string; text: string }
+
+      expect(paragraphBlock).toBeTruthy()
+      expect(paragraphBlock.text).toBe('First line\nSecond line\n\nThird line')
     })
   })
 

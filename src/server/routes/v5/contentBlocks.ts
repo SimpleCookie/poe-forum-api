@@ -31,6 +31,8 @@ function normalizeWhitespace(value: string): string {
   return value
     .replace(/\u00A0/g, ' ')
     .replace(/\r/g, '')
+    .replace(/[ \t]*\n[ \t]*/g, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
 }
@@ -91,14 +93,26 @@ export function toStructuredContentV5(contentHtml: string): StructuredContentV5 
     if (text.length === 0) {
       return
     }
-    const normalized = text.replace(/\s+/g, ' ')
+
+    const withoutNbsp = text.replace(/\u00A0/g, ' ')
+    if (withoutNbsp.trim().length === 0) {
+      return
+    }
+
+    const normalized = withoutNbsp
+      .replace(/\r/g, '')
+      .replace(/[ \t]{2,}/g, ' ')
     paragraphBuffer += normalized
   }
 
   const appendBreak = () => {
-    if (paragraphBuffer.length > 0 && !paragraphBuffer.endsWith('\n')) {
-      paragraphBuffer += '\n'
+    if (paragraphBuffer.length === 0) {
+      return
     }
+    if (paragraphBuffer.endsWith('\n\n')) {
+      return
+    }
+    paragraphBuffer += '\n'
   }
 
   const flushParagraph = () => {
