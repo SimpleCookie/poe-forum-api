@@ -76,11 +76,12 @@ export const getThreadSchemaV5 = {
                         },
                         {
                           type: 'object',
-                          required: ['type', 'text'],
+                          required: ['type', 'text', 'depth'],
                           properties: {
                             type: { type: 'string', enum: ['quote'] },
                             author: { type: 'string' },
                             text: { type: 'string' },
+                            depth: { type: 'number', minimum: 1 },
                           },
                         },
                       ],

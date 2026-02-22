@@ -22,6 +22,8 @@ const mockStructuredThreadHTML = `<table class="forumTable"><tr><td colspan="100
 
 const mockLineBreakThreadHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content">First line<br>Second line<br><br>Third line</div></td><td class="posted-by"><div class="profile-link"><a>UserLineBreaks</a></div><div class="post_date">2026-02-18 10:10:00</div></td><td><div class="post_anchor" id="p501"></div></td></tr></table><div class="pagination"><a class="current" href="/forum/view-thread/123/page/1">1</a></div>`
 
+const mockNestedQuoteThreadHTML = `<table class="forumTable"><tr><td colspan="100">Header</td></tr><tr><td class="content-container"><div class="content"><blockquote><div class="top"><cite><span class="profile-link"><a href="/account/view-profile/Outer-0001">Outer#0001</a></span> wrote:</cite></div><div class="bot">Outer line<br><blockquote><div class="top"><cite><span class="profile-link"><a href="/account/view-profile/Inner-0002">Inner#0002</a></span> wrote:</cite></div><div class="bot">Inner line<div class="clear"></div></div></blockquote>After inner<div class="clear"></div></div></blockquote><br>Reply line</div></td><td class="posted-by"><div class="profile-link"><a>ReplyUser</a></div><div class="post_date">2026-02-18 10:11:00</div></td><td><div class="post_anchor" id="p502"></div></td></tr></table><div class="pagination"><a class="current" href="/forum/view-thread/123/page/1">1</a></div>`
+
 const mockCategoryHTML = `<table><tbody><tr><td class="thread"><div class="thread_title"><div class="title"><a href="/forum/view-thread/3912208">2.0.0 Released</a></div></div></td><td class="views"><span>1250</span></td></tr></tbody></table><div class="pagination"><a class="current" href="/forum/view-forum/general/page/1">1</a><a href="/forum/view-forum/general/page/2">2</a><a href="/forum/view-forum/general/page/2">Next</a></div>`
 
 describe('Thread Routes Integration Tests', () => {
@@ -483,6 +485,32 @@ describe('Thread Routes Integration Tests', () => {
 
       expect(paragraphBlock).toBeTruthy()
       expect(paragraphBlock.text).toBe('First line\nSecond line\n\nThird line')
+    })
+
+    it('✓ GET /api/v5/thread/:id includes quote depth for nested quotes', async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: mockNestedQuoteThreadHTML })
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/thread/123',
+      })
+
+      expect(response.statusCode).toBe(200)
+      const body = JSON.parse(response.payload)
+
+      const quoteBlocks = body.posts[0].content.blocks.filter(
+        (block: { type: string }) => block.type === 'quote'
+      ) as Array<{ type: string; author?: string; text: string; depth: number }>
+
+      expect(quoteBlocks).toHaveLength(2)
+      expect(quoteBlocks[0]).toMatchObject({
+        author: 'Outer#0001',
+        depth: 1,
+      })
+      expect(quoteBlocks[1]).toMatchObject({
+        author: 'Inner#0002',
+        depth: 2,
+      })
     })
   })
 

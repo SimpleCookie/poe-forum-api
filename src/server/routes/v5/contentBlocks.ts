@@ -12,7 +12,7 @@ export type ContentBlockV5 =
     embedUrl: string
     videoId?: string
   }
-  | { type: 'quote'; author?: string; text: string }
+  | { type: 'quote'; author?: string; text: string; depth: number }
 
 export interface StructuredContentV5 {
   type: 'doc'
@@ -191,17 +191,25 @@ export function toStructuredContentV5(contentHtml: string): StructuredContentV5 
 
     if (tagName === 'blockquote') {
       flushParagraph()
+      const depth = element.parents('blockquote').length + 1
       const author = element.find('cite .profile-link a').first().text().trim()
-      const quoteText = normalizeWhitespace(
-        element.find('.bot').first().text() || element.text()
-      )
+
+      const quoteBody = element.find('.bot').first().clone()
+      quoteBody.find('blockquote').remove()
+      quoteBody.find('.clear').remove()
+      const quoteText = normalizeWhitespace(quoteBody.text() || element.text())
+
       if (quoteText.length > 0) {
         blocks.push({
           type: 'quote',
           ...(author.length > 0 ? { author } : {}),
           text: quoteText,
+          depth,
         })
       }
+
+      const nestedBlockquotes = element.find('.bot').first().children('blockquote').toArray()
+      nestedBlockquotes.forEach((nestedQuote) => walk(nestedQuote))
       return
     }
 

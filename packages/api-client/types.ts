@@ -40,7 +40,7 @@ export type ContentBlockV5 =
     embedUrl: string
     videoId?: string
   }
-  | { type: 'quote'; author?: string; text: string }
+  | { type: 'quote'; author?: string; text: string; depth: number }
 
 export interface PostContentV5 {
   type: 'doc'
