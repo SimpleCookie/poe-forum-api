@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/publish-api-client.yml
       - packages/api-client/package.json
       - packages/api-client/**
       - src/server/**
