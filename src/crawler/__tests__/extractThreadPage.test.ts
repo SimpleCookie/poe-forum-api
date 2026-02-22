@@ -344,4 +344,136 @@ describe('extractThreadPage', () => {
       contentText: 'Valid regular post',
     })
   })
+
+  it('should keep correct pagination on page 1 when first post is split GGG news format', () => {
+    const html = `
+      <table class="forumTable">
+        <tr>
+          <td colspan="2">Page Header</td>
+        </tr>
+        <tr class="newsPost">
+          <td colspan="2">
+            <div class="content">Official announcement content</div>
+          </td>
+        </tr>
+        <tr class="newsPost newsPostInfo">
+          <td colspan="2">
+            <div class="posted-by">
+              <a class="posted-by-link" href="#p2001">Posted by</a>
+              <span class="profile-link staff post_by_account"><a>Natalia_GGG</a></span>
+              on <span class="post_date">Feb 19, 2026, 9:02:23 PM</span>
+              <div class="roleLabel staffText">Grinding Gear Games</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="content-container"><div class="content">First reply</div></td>
+          <td class="post_info">
+            <div class="post_info_content">
+              <div class="post_anchor" id="p2002"></div>
+              <div class="posted-by">
+                <span class="profile-link post_by_account"><a>PlayerOne</a></span>
+                on <span class="post_date">Feb 19, 2026, 9:05:00 PM</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div class="pagination">
+        <a class="current" href="/forum/view-thread/3912574/page/1">1</a>
+        <a href="/forum/view-thread/3912574/page/2">2</a>
+        <a href="/forum/view-thread/3912574/page/3">3</a>
+        <a href="/forum/view-thread/3912574/page/5">5</a>
+        <a href="/forum/view-thread/3912574/page/2">Next</a>
+      </div>
+    `
+
+    const result = extractThreadPage(html, {
+      threadId: '3912574',
+      pageNumber: 1,
+      isFirstPage: true,
+    })
+
+    expect(result.posts).toHaveLength(2)
+    expect(result.pagination).toMatchObject({
+      page: 1,
+      totalPages: 5,
+      hasNext: true,
+      hasPrevious: false,
+      pageSize: 2,
+    })
+  })
+
+  it('should keep correct pagination on page 3', () => {
+    const html = `
+      <table class="forumTable">
+        <tr>
+          <td class="content-container"><div class="content">Mid page post</div></td>
+          <td class="posted-by">
+            <div class="profile-link"><a>User3</a></div>
+            <div class="post_date">2026-02-20 10:00:00</div>
+          </td>
+          <td><div class="post_anchor" id="p3001"></div></td>
+        </tr>
+      </table>
+      <div class="pagination">
+        <a href="/forum/view-thread/3912574/page/2">Previous</a>
+        <a href="/forum/view-thread/3912574/page/1">1</a>
+        <a href="/forum/view-thread/3912574/page/2">2</a>
+        <a class="current" href="/forum/view-thread/3912574/page/3">3</a>
+        <a href="/forum/view-thread/3912574/page/4">4</a>
+        <a href="/forum/view-thread/3912574/page/5">5</a>
+        <a href="/forum/view-thread/3912574/page/4">Next</a>
+      </div>
+    `
+
+    const result = extractThreadPage(html, {
+      threadId: '3912574',
+      pageNumber: 3,
+      isFirstPage: false,
+    })
+
+    expect(result.pagination).toMatchObject({
+      page: 3,
+      totalPages: 5,
+      hasNext: true,
+      hasPrevious: true,
+      pageSize: 1,
+    })
+  })
+
+  it('should keep correct pagination on last page', () => {
+    const html = `
+      <table class="forumTable">
+        <tr>
+          <td class="content-container"><div class="content">Last page post</div></td>
+          <td class="posted-by">
+            <div class="profile-link"><a>UserLast</a></div>
+            <div class="post_date">2026-02-20 11:00:00</div>
+          </td>
+          <td><div class="post_anchor" id="p5001"></div></td>
+        </tr>
+      </table>
+      <div class="pagination">
+        <a href="/forum/view-thread/3912574/page/4">Previous</a>
+        <a href="/forum/view-thread/3912574/page/1">1</a>
+        <a href="/forum/view-thread/3912574/page/4">4</a>
+        <a class="current" href="/forum/view-thread/3912574/page/5">5</a>
+      </div>
+    `
+
+    const result = extractThreadPage(html, {
+      threadId: '3912574',
+      pageNumber: 5,
+      isFirstPage: false,
+    })
+
+    expect(result.pagination).toMatchObject({
+      page: 5,
+      totalPages: 5,
+      hasNext: false,
+      hasPrevious: true,
+      pageSize: 1,
+    })
+  })
 })

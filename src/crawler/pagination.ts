@@ -21,17 +21,34 @@ export function extractPagination(html: string, pageSize: number): Pageable {
   const currentPageText = currentPageEl.text().trim()
   const currentPage = parseInt(currentPageText, 10) || 1
 
-  // Get all numeric page links (not "Next", "Previous", etc.)
-  const pageLinks = $('div.pagination a')
+  // Parse page numbers from link text and href because visible labels can be truncated/windowed
+  const pageNumbers = $('div.pagination a')
     .toArray()
-    .filter((link) => {
+    .flatMap((link) => {
+      const values: number[] = []
+
       const text = $(link).text().trim()
-      return /^\d+$/.test(text) // Only numeric pages
+      const textLower = text.toLowerCase()
+      const isNavigationOnlyLabel = ['next', 'previous', 'prev', 'first'].includes(textLower)
+
+      if (/^\d+$/.test(text)) {
+        values.push(parseInt(text, 10))
+      }
+
+      const href = $(link).attr('href') || ''
+      const hrefMatch = href.match(/\/page\/(\d+)(?:\b|\/|$)/)
+      const isCurrent = $(link).hasClass('current')
+      const isLastLabel = textLower === 'last'
+
+      if (hrefMatch && (!isNavigationOnlyLabel || isCurrent || isLastLabel)) {
+        values.push(parseInt(hrefMatch[1], 10))
+      }
+
+      return values.filter((value) => Number.isFinite(value) && value > 0)
     })
-    .map((link) => parseInt($(link).text().trim(), 10))
 
   // Find the highest page number (total pages)
-  const totalPages = pageLinks.length > 0 ? Math.max(...pageLinks) : currentPage
+  const totalPages = pageNumbers.length > 0 ? Math.max(currentPage, ...pageNumbers) : currentPage
 
   // Derive navigation from page numbers to avoid label/markup variance (e.g. localized or missing Next/Previous links)
   const hasNext = currentPage < totalPages

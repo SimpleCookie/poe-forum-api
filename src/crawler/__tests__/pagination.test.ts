@@ -257,5 +257,32 @@ describe('pagination', () => {
       expect(result.hasNext).toBe(false)
       expect(result.hasPrevious).toBe(true)
     })
+
+    it('should derive totalPages from href when visible numeric labels are truncated', () => {
+      const html = `
+        <div class="pagination">
+          <a href="/forum/view-thread/3912574/page/21">Previous</a>
+          <a href="/forum/view-thread/3912574/page/9">9</a>
+          <a href="/forum/view-thread/3912574/page/10">10</a>
+          <a href="/forum/view-thread/3912574/page/11">11</a>
+          <a href="/forum/view-thread/3912574/page/12">12</a>
+          <a href="/forum/view-thread/3912574/page/13">13</a>
+          <a href="/forum/view-thread/3912574/page/14">14</a>
+          <a class="current" href="/forum/view-thread/3912574/page/22">22</a>
+          <a href="/forum/view-thread/3912574/page/23">Next</a>
+          <a href="/forum/view-thread/3912574/page/52">Last</a>
+        </div>
+      `
+
+      const result = extractPagination(html, 10)
+
+      expect(result).toEqual({
+        page: 22,
+        totalPages: 52,
+        hasNext: true,
+        hasPrevious: true,
+        pageSize: 10,
+      })
+    })
   })
 })
