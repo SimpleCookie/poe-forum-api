@@ -77,7 +77,6 @@ jobs:
 
       - name: Check npm for existing version
         id: npm_check
-        if: steps.version_check.outputs.version_changed == 'true'
         shell: bash
         run: |
           VERSION="${{ steps.version_check.outputs.current_version }}"
@@ -90,7 +89,7 @@ jobs:
           fi
 
       - name: Publish API client
-        if: steps.version_check.outputs.version_changed == 'true' && steps.npm_check.outputs.already_published == 'false'
+        if: steps.npm_check.outputs.already_published == 'false'
         working-directory: packages/api-client
         run: npm publish --provenance --access public
 
