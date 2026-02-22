@@ -34,7 +34,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          registry-url: https://registry.npmjs.org
+
+      - name: Ensure tokenless npm auth (OIDC only)
+        run: npm config delete //registry.npmjs.org/:_authToken || true
 
       - name: Install dependencies
         run: npm ci
@@ -91,7 +93,9 @@ jobs:
       - name: Publish API client
         if: steps.npm_check.outputs.already_published == 'false'
         working-directory: packages/api-client
-        run: npm publish --provenance --access public
+        env:
+          NPM_CONFIG_PROVENANCE: true
+        run: npm publish --access public
 
       - name: Publish summary
         if: always()
