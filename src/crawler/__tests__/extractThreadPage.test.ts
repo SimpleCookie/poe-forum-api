@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import { extractThreadPage } from '../extractThreadPage'
 import { mockThreadPageHtml } from './fixtures'
 
@@ -245,5 +247,100 @@ describe('extractThreadPage', () => {
     })
 
     expect(result.title).toBeUndefined()
+  })
+
+  it('should merge split first GGG news post rows from fixture html', () => {
+    const fixturePath = path.resolve(process.cwd(), 'newspost-example.html')
+    const rawHtml = fs.readFileSync(fixturePath, 'utf8')
+    const html = rawHtml.includes('table class="forumTable"')
+      ? rawHtml
+      : `<table class="forumTable">${rawHtml}</table>`
+
+    const result = extractThreadPage(html, {
+      threadId: '3912574',
+      pageNumber: 1,
+      isFirstPage: true,
+    })
+
+    expect(result.posts.length).toBeGreaterThan(0)
+    expect(result.posts[0]).toMatchObject({
+      threadId: '3912574',
+      indexOnPage: 0,
+      author: 'Natalia_GGG',
+      postId: 'p26573837',
+    })
+    expect(result.posts[0].contentText).toContain('GGG Live')
+    expect(result.posts[0].createdAt).toBeTruthy()
+  })
+
+  it('should keep normal single-row thread parsing unchanged', () => {
+    const result = extractThreadPage(mockThreadPageHtml, {
+      threadId: '123',
+      pageNumber: 1,
+      isFirstPage: true,
+    })
+
+    expect(result.posts).toHaveLength(2)
+    expect(result.posts[0]).toMatchObject({
+      indexOnPage: 0,
+      author: 'GGG_Staff',
+      postId: '12345',
+      contentText: 'First post content here',
+    })
+    expect(result.posts[1]).toMatchObject({
+      indexOnPage: 1,
+      author: 'Player123',
+      postId: '67890',
+      contentText: 'Second post content here',
+    })
+  })
+
+  it('should not merge split news rows when staff markers are missing', () => {
+    const html = `
+      <table class="forumTable">
+        <tr>
+          <td colspan="2">Page Header</td>
+        </tr>
+        <tr class="newsPost">
+          <td colspan="2">
+            <div class="content">Non-staff split content should not become a post</div>
+          </td>
+        </tr>
+        <tr class="newsPost newsPostInfo">
+          <td colspan="2">
+            <div class="posted-by">
+              <a class="posted-by-link" href="#p999">Posted by</a>
+              <span class="profile-link post_by_account"><a>SomeUser</a></span>
+              on <span class="post_date">Feb 19, 2026, 9:00:00 PM</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="content-container"><div class="content">Valid regular post</div></td>
+          <td class="post_info">
+            <div class="post_info_content">
+              <div class="post_anchor" id="p1000"></div>
+              <div class="posted-by">
+                <span class="profile-link post_by_account"><a>RegularUser</a></span>
+                on <span class="post_date">Feb 19, 2026, 9:05:00 PM</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    `
+
+    const result = extractThreadPage(html, {
+      threadId: 'edge-case',
+      pageNumber: 1,
+      isFirstPage: true,
+    })
+
+    expect(result.posts).toHaveLength(1)
+    expect(result.posts[0]).toMatchObject({
+      author: 'RegularUser',
+      postId: 'p1000',
+      contentText: 'Valid regular post',
+    })
   })
 })
