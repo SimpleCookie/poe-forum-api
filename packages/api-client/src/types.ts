@@ -39,6 +39,33 @@ export interface PostV4 {
   indexOnPage: number
 }
 
+export type ContentBlockV5 =
+  | { type: 'paragraph'; text: string }
+  | { type: 'image'; url: string; alt?: string }
+  | {
+    type: 'embed'
+    provider: 'youtube' | 'unknown'
+    kind: 'video' | 'iframe'
+    url: string
+    embedUrl: string
+    videoId?: string
+  }
+  | { type: 'quote'; author?: string; text: string }
+
+export interface PostContentV5 {
+  type: 'doc'
+  blocks: ContentBlockV5[]
+}
+
+export interface PostV5 {
+  postId: string
+  threadId: string
+  author: string
+  createdAt: string
+  content: PostContentV5
+  indexOnPage: number
+}
+
 /**
  * Post in V1 responses (includes page for backwards compatibility)
  */
@@ -65,6 +92,13 @@ export interface ThreadResponseV4 {
   threadId: string
   title?: string
   posts: PostV4[]
+  pagination: PaginationV2
+}
+
+export interface ThreadResponseV5 {
+  threadId: string
+  title?: string
+  posts: PostV5[]
   pagination: PaginationV2
 }
 
@@ -100,4 +134,5 @@ export interface ApiResponse<T> {
 export type ThreadApiResponseV1 = ApiResponse<ThreadResponseV1>
 export type ThreadApiResponseV2 = ApiResponse<ThreadResponseV2>
 export type ThreadApiResponseV4 = ApiResponse<ThreadResponseV4>
+export type ThreadApiResponseV5 = ApiResponse<ThreadResponseV5>
 export type ThreadApiResponse = ApiResponse<ThreadResponse>

@@ -2,8 +2,17 @@
 export { setBaseUrl, getBaseUrl, resetBaseUrl } from './config'
 
 // Versioned APIs - Each version has all functions
-import { getThreadV1, getThreadV1Deprecated, getThreadV2, getThreadV3, getThreadV4 } from './client'
-import { getCategoriesV1, getCategoryV1, getCategoriesV3, getCategoryV3, getCategoriesV4, getCategoryV4 } from './client'
+import { getThreadV1, getThreadV1Deprecated, getThreadV2, getThreadV3, getThreadV4, getThreadV5 } from './client'
+import {
+  getCategoriesV1,
+  getCategoryV1,
+  getCategoriesV3,
+  getCategoryV3,
+  getCategoriesV4,
+  getCategoryV4,
+  getCategoriesV5,
+  getCategoryV5,
+} from './client'
 
 /**
  * V1 API - Deprecated format
@@ -50,18 +59,34 @@ export const v4 = {
   getCategory: getCategoryV4,
 }
 
+/**
+ * V5 API - Structured content blocks with single content field
+ * threads return posts with content: { type: 'doc', blocks: [...] }
+ * categories and threads are both under /api/v5/
+ */
+export const v5 = {
+  getThread: getThreadV5,
+  getCategories: getCategoriesV5,
+  getCategory: getCategoryV5,
+}
+
 // Types - Strong response contracts for UI consumption
 export type {
   ThreadApiResponse,
   ThreadApiResponseV1,
   ThreadApiResponseV2,
   ThreadApiResponseV4,
+  ThreadApiResponseV5,
   ThreadResponseV1,
   ThreadResponseV2,
   ThreadResponseV4,
+  ThreadResponseV5,
   Post,
   PostV1,
   PostV4,
+  PostV5,
+  PostContentV5,
+  ContentBlockV5,
   Pageable,
   ApiResponse,
 } from './types'

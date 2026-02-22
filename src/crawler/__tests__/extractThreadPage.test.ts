@@ -270,6 +270,7 @@ describe('extractThreadPage', () => {
       postId: 'p26573837',
     })
     expect(result.posts[0].contentText).toContain('GGG Live')
+    expect(result.posts[0].contentHtml).toContain('youtube.com/embed/Fch-pZe1_kw')
     expect(result.posts[0].createdAt).toBeTruthy()
   })
 

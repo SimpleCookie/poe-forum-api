@@ -6,7 +6,12 @@
 import { getBaseUrl } from './config'
 import type { getApiCategoriesResponse200, getApiCategoryCategoryResponse200 } from './generated/categories/categories'
 import type { GetApiCategoryCategoryParams } from './generated/api.schemas'
-import type { ThreadApiResponseV1, ThreadApiResponseV2, ThreadApiResponseV4 } from './types'
+import type {
+    ThreadApiResponseV1,
+    ThreadApiResponseV2,
+    ThreadApiResponseV4,
+    ThreadApiResponseV5,
+} from './types'
 
 function parseResponseBody<T>(body: string | null): T {
     if (!body) {
@@ -168,6 +173,28 @@ export const getThreadV4 = async (
 }
 
 /**
+ * Get thread using V5 API (single structured content field)
+ */
+export const getThreadV5 = async (
+    id: string,
+    page?: string,
+    options?: RequestInit
+): Promise<ThreadApiResponseV5> => {
+    const baseUrl = getBaseUrl()
+    const queryStr = page ? `?page=${page}` : ''
+    const url = `${baseUrl}/api/v5/thread/${id}${queryStr}`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data = parseResponseBody<ThreadApiResponseV5['data']>(body)
+    return { data, status: res.status, headers: res.headers } as ThreadApiResponseV5
+}
+
+/**
  * Get categories using V3 API (unified)
  * All endpoints under /api/v3/
  */
@@ -247,6 +274,62 @@ export const getCategoryV4 = async (
     return { data, status: res.status, headers: res.headers } as getApiCategoryCategoryResponse200 & { headers: Headers }
 }
 
+/**
+ * Get categories using V5 API surface
+ */
+export const getCategoriesV5 = async (options?: RequestInit): Promise<getApiCategoriesResponse200 & { headers: Headers }> => {
+    const baseUrl = getBaseUrl()
+    const url = `${baseUrl}/api/v5/categories`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data = parseResponseBody<getApiCategoriesResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoriesResponse200 & { headers: Headers }
+}
+
+/**
+ * Get category using V5 API surface
+ */
+export const getCategoryV5 = async (
+    category: string,
+    params?: GetApiCategoryCategoryParams,
+    options?: RequestInit
+): Promise<getApiCategoryCategoryResponse200 & { headers: Headers }> => {
+    const baseUrl = getBaseUrl()
+    const queryStr = params?.page ? `?page=${params.page}` : ''
+    const url = `${baseUrl}/api/v5/category/${category}${queryStr}`
+
+    const res = await fetch(url, {
+        ...options,
+        method: 'GET',
+    })
+
+    const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+    const data = parseResponseBody<getApiCategoryCategoryResponse200['data']>(body)
+    return { data, status: res.status, headers: res.headers } as getApiCategoryCategoryResponse200 & { headers: Headers }
+}
+
 // Re-export types
 export type { getApiCategoriesResponse200, getApiCategoryCategoryResponse200 } from './generated/categories/categories'
-export type { ThreadApiResponse, ThreadApiResponseV1, ThreadApiResponseV2, ThreadApiResponseV4, ThreadResponseV1, ThreadResponseV2, ThreadResponseV4, Post, PostV1, PostV4, ApiResponse } from './types'
+export type {
+    ThreadApiResponse,
+    ThreadApiResponseV1,
+    ThreadApiResponseV2,
+    ThreadApiResponseV4,
+    ThreadApiResponseV5,
+    ThreadResponseV1,
+    ThreadResponseV2,
+    ThreadResponseV4,
+    ThreadResponseV5,
+    Post,
+    PostV1,
+    PostV4,
+    PostV5,
+    PostContentV5,
+    ContentBlockV5,
+    ApiResponse,
+} from './types'
